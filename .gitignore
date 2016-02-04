@@ -3,5 +3,4 @@ gen/
 .gradle/
 build/
 local.properties
-proguard/
 

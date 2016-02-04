@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="umeng-update-2.6.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/easeUIDemo/build/intermediates/exploded-aar/com.jiechic.library/umeng-update/2.6.1/jars/libs/umeng-update-v2.6.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/easeUIDemo/build/intermediates/exploded-aar/com.jiechic.library/umeng-update/2.6.1/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/easeUIDemo/build/intermediates/exploded-aar/com.jiechic.library/umeng-update/2.6.1/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jiechic.library/umeng-update/2.6.1/900cf9f33814f2018b7f512c3b64a6e0a0df21d8/umeng-update-2.6.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

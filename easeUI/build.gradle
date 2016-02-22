@@ -24,4 +24,5 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.6.1'
     compile files('libs/google-play-services.jar')
     compile 'com.android.support:support-v4:23.1.1'
+    compile project(':BQMM_Lib')
 }

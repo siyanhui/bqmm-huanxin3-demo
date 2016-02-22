@@ -1,8 +1,5 @@
 package com.easemob.easeui.ui;
 
-import java.io.File;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -59,6 +56,18 @@ import com.easemob.easeui.widget.EaseVoiceRecorderView.EaseVoiceRecorderCallback
 import com.easemob.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.easemob.util.EMLog;
 import com.easemob.util.PathUtil;
+import com.melink.bqmmsdk.bean.Emoji;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
+import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
+import com.melink.bqmmsdk.widget.BQMMEditView;
+import com.melink.bqmmsdk.widget.BQMMSendButton;
+
+import org.json.JSONArray;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 可以直接new出来使用的聊天对话页面fragment，
@@ -104,7 +113,10 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
     static final int ITEM_TAKE_PICTURE = 1;
     static final int ITEM_PICTURE = 2;
     static final int ITEM_LOCATION = 3;
-    
+
+	public static final String EMOJITYPE = "emojitype";
+	public static final String FACETYPE = "facetype";
+
     protected int[] itemStrings = { R.string.attach_take_pic, R.string.attach_picture, R.string.attach_location };
     protected int[] itemdrawables = { R.drawable.ease_chat_takepic_selector, R.drawable.ease_chat_image_selector,
             R.drawable.ease_chat_location_selector };
@@ -182,6 +194,100 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
         inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        /**
+         * 初始化表情MM SDK
+         */
+        BQMMKeyboard bqmmKeyboard = inputMenu.getEmojiconMenu();
+        BQMMEditView bqmmEditView = inputMenu.getPrimaryMenu().getEditText();
+        BQMMSendButton bqmmSendButton = inputMenu.getPrimaryMenu().getButtonSend();
+        BQMM bqmm=BQMM.getInstance();
+        bqmm.setEditView(bqmmEditView);
+        bqmm.setKeyboard(bqmmKeyboard);
+        bqmm.setSendButton(bqmmSendButton);
+        bqmm.load();
+        bqmm.setBqmmSendMsgListener(new IBqmmSendMessageListener() {
+            @Override
+            public void onSendFace(Emoji face) {
+                List<Object> listFace = new ArrayList<Object>();
+                listFace.add(face);
+                JSONArray msgCodes = getMixedMessageCodes(listFace);
+                sendFaceText(face.getEmoText(), msgCodes, FACETYPE);
+            }
+
+            @Override
+            public void onSendMixedMessage(List<Object> emojis, boolean isMixedMessage) {
+                String msgString = getMixedMessageString(emojis);
+                //判断一下是纯文本还是富文本
+                if (isMixedMessage) {
+                    JSONArray msgCodes = getMixedMessageCodes(emojis);
+                    sendFaceText(msgString, msgCodes, EMOJITYPE);
+                } else {
+                    sendTextMessage(msgString);
+                }
+            }
+
+        });
+
+    }
+
+    /**
+     * 发送表情文本
+     *
+     * @param content message content
+     * @param msgData 由getMixedMessageCodes()返回
+     * @param type    FACETYPE和EMOJITYPE之一
+     */
+    public void sendFaceText(String content, JSONArray msgData, String type) {
+        if (content.length() > 0) {
+            EMMessage message = EMMessage.createSendMessage(EMMessage.Type.TXT);
+            TextMessageBody txtBody = new TextMessageBody(content);
+            // 设置消息body
+            message.addBody(txtBody);
+            message.setAttribute("txt_msgType", type);
+            message.setAttribute("msg_data", msgData);
+
+            // 设置要发给谁,用户username或者群聊groupid
+            message.setReceipt(toChatUsername);
+            sendMessage(message);
+            //发送大表情时，不清空EditView
+//            if(!type.equals(FACETYPE)){
+//                bqmmEditText.setText("");
+//            }
+        }
+    }
+
+    /**
+     * @param emojis
+     * @return 表情的code表示
+     */
+    private JSONArray getMixedMessageCodes(List<Object> emojis) {
+        List<JSONArray> msgCodeList = new ArrayList<JSONArray>();
+        for (int i = 0; i < emojis.size(); i++) {
+            JSONArray codeList = new JSONArray();
+            if (emojis.get(i) instanceof Emoji) {
+                codeList.put(((Emoji) emojis.get(i)).getEmoCode());
+                codeList.put("1");
+            } else {
+                codeList.put(emojis.get(i).toString());
+                codeList.put("0");
+            }
+            msgCodeList.add(codeList);
+        }
+        return new JSONArray(msgCodeList);
+    }
+
+    private String getMixedMessageString(List<Object> emojis) {
+        // 获得bqmm_edit中的数据，做页面上的处理
+        StringBuffer sendMsg = new StringBuffer();
+        for (int i = 0; i < emojis.size(); i++) {
+            if (emojis.get(i) instanceof Emoji) {
+                sendMsg.append("[" + ((Emoji) emojis.get(i)).getEmoText() + "]");
+            } else {
+                sendMsg.append(emojis.get(i).toString());
+            }
+        }
+        return sendMsg.toString();
     }
 
     /**
@@ -214,6 +320,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
             onConversationInit();
             onMessageListInit();
         }
+        ;
 
         // 设置标题栏点击事件
         titleBar.setLeftLayoutClickListener(new OnClickListener() {

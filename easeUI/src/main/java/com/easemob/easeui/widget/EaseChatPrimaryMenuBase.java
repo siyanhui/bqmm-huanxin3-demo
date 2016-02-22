@@ -9,6 +9,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 
+import com.melink.bqmmsdk.widget.BQMMEditView;
+import com.melink.bqmmsdk.widget.BQMMSendButton;
+
 public abstract class EaseChatPrimaryMenuBase extends RelativeLayout{
     protected EaseChatPrimaryMenuListener listener;
     protected Activity activity;
@@ -52,7 +55,17 @@ public abstract class EaseChatPrimaryMenuBase extends RelativeLayout{
      * 表情删除
      */
     public abstract void onEmojiconDeleteEvent();
-    
+
+    /**
+     * 为了在组装UI时取得输入框，必须在抽象类中定义这个方法
+     */
+    public abstract BQMMEditView getEditText();
+
+    /**
+     * 为了在组装UI时取得发送按钮，必须在抽象类中定义这个方法
+     */
+    public abstract BQMMSendButton getButtonSend();
+
     /**
      * 整个扩展按钮栏(包括表情栏)隐藏
      */

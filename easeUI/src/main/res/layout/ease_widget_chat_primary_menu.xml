@@ -68,7 +68,7 @@
             android:layout_weight="1"
             android:gravity="bottom" >
 
-            <EditText
+            <com.melink.bqmmsdk.widget.BQMMEditView
                 android:id="@+id/et_sendmessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/ease_type_select_btn" />
 
-        <Button
+        <com.melink.bqmmsdk.widget.BQMMSendButton
             android:id="@+id/btn_send"
             android:layout_width="wrap_content"
             android:layout_height="32dp"

@@ -87,8 +87,9 @@
     <orderEntry type="library" exported="" name="MiPush_SDK_Client_2_2_19" level="project" />
     <orderEntry type="library" exported="" name="BaiduLBS_Android" level="project" />
     <orderEntry type="library" exported="" name="easemobchat_2.2.5" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="glide-3.6.1" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="google-play-services" level="project" />
+    <orderEntry type="module" module-name="BQMM_Lib" exported="" />
   </component>
 </module>

@@ -90,10 +90,9 @@
     <orderEntry type="library" exported="" name="umeng-update-2.6.1" level="project" />
     <orderEntry type="library" exported="" name="multidex-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="umeng-analytics-5.4.1" level="project" />
-    <orderEntry type="library" exported="" name="glide-3.6.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="glide-3.6.1" level="project" />
     <orderEntry type="library" exported="" name="parse-android-1.13.0" level="project" />
     <orderEntry type="module" module-name="easeUI" exported="" />
-    <orderEntry type="module" module-name="BQMM_Lib" exported="" />
   </component>
 </module>

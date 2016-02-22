@@ -11,22 +11,29 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.easemob.easeui.R;
+import com.melink.bqmmsdk.widget.BQMMEditView;
+import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 /**
  * 聊天输入栏主菜单栏
  *
  */
 public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnClickListener {
-    private EditText editText;
+    /**
+     * 将EditText改为表情MM提供的
+     */
+    private BQMMEditView editText;
     private View buttonSetModeKeyboard;
     private RelativeLayout edittext_layout;
     private View buttonSetModeVoice;
-    private View buttonSend;
+    /**
+     * 发送按钮也如此修改
+     */
+    private BQMMSendButton buttonSend;
     private View buttonPressToSpeak;
     private ImageView faceNormal;
     private ImageView faceChecked;
@@ -52,11 +59,11 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     private void init(final Context context, AttributeSet attrs) {
         this.context = context;
         LayoutInflater.from(context).inflate(R.layout.ease_widget_chat_primary_menu, this);
-        editText = (EditText) findViewById(R.id.et_sendmessage);
+        editText = (BQMMEditView) findViewById(R.id.et_sendmessage);
         buttonSetModeKeyboard = findViewById(R.id.btn_set_mode_keyboard);
         edittext_layout = (RelativeLayout) findViewById(R.id.edittext_layout);
         buttonSetModeVoice = findViewById(R.id.btn_set_mode_voice);
-        buttonSend = findViewById(R.id.btn_send);
+        buttonSend = (BQMMSendButton) findViewById(R.id.btn_send);
         buttonPressToSpeak = findViewById(R.id.btn_press_to_speak);
         faceNormal = (ImageView) findViewById(R.id.iv_face_normal);
         faceChecked = (ImageView) findViewById(R.id.iv_face_checked);
@@ -250,7 +257,26 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
         faceNormal.setVisibility(View.INVISIBLE);
         faceChecked.setVisibility(View.VISIBLE);
     }
-    
+
+    /**
+     * 将editText暴露出去，方便在BQMM中注册
+     *
+     * @return editText
+     */
+    @Override
+    public BQMMEditView getEditText() {
+        return editText;
+    }
+
+    /**
+     * 将buttonSend暴露出去，方便在BQMM中注册
+     *
+     * @return buttonSend
+     */
+    @Override
+    public BQMMSendButton getButtonSend() {
+        return buttonSend;
+    }
 
     @Override
     public void onExtendMenuContainerHide() {

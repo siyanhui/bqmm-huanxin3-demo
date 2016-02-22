@@ -16,6 +16,8 @@ package com.easemob.chatuidemo;
 import android.app.Application;
 import android.content.Context;
 
+import com.melink.bqmmsdk.sdk.BQMM;
+
 public class DemoApplication extends Application {
 
 	public static Context applicationContext;
@@ -37,7 +39,11 @@ public class DemoApplication extends Application {
         
         //init demo helper
         DemoHelper.getInstance().init(applicationContext);
-        
+
+		/**
+		 * 初始化BQMMSDK,通过官网获取AppId以及AppSecert
+		 */
+		BQMM.getInstance().initConfig(applicationContext, "ID", "SECRET");
 	}
 
 	public static DemoApplication getInstance() {

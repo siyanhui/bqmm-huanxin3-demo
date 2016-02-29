@@ -1,5 +1,18 @@
 apply plugin: 'com.android.application'
 
+/**
+ * 在开始使用表情MM SDK之前，开发者需要首先申请到一对AppID和AppSecret，并用它们初始化SDK。
+ * 为了运行本Demo，请在项目根目录下的local.properties中加入如下两行：
+ * bqmm.appID=<申请到的AppID>
+ * bqmm.appSecret=<申请到的AppSecret>
+ *
+ * 以下代码会从local.properties中读取这两个值
+ */
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def bqmmAppID = properties.getProperty('bqmm.appID')
+def bqmmAppSecret = properties.getProperty('bqmm.appSecret')
+
 android {
     compileSdkVersion 19
     buildToolsVersion '22.0.1'
@@ -9,6 +22,10 @@ android {
         minSdkVersion 9
         targetSdkVersion 19
         multiDexEnabled true
+        /**
+         * 以下代码可以把appID和appSecret写入AndroidManifest
+         */
+        manifestPlaceholders = [bqmmAppID: bqmmAppID, bqmmAppSecret: bqmmAppSecret]
     }
 
     buildTypes {

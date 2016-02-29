@@ -5,7 +5,7 @@
     android:gravity="center" >
 
     <ImageView
-        android:id="@+id/itemImage"
+        android:id="@+id/keyboard_face_iv"
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_centerInParent="true"
@@ -18,7 +18,7 @@
         android:id="@+id/bqmm_imageText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/itemImage"
+        android:layout_below="@+id/keyboard_face_iv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="2dp"
         android:textColor="#bcbcbc"

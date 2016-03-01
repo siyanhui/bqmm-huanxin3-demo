@@ -71,7 +71,6 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
         buttonMore = (Button) findViewById(R.id.btn_more);
         edittext_layout.setBackgroundResource(R.drawable.ease_input_bar_bg_normal);
         
-        buttonSend.setOnClickListener(this);
         buttonSetModeKeyboard.setOnClickListener(this);
         buttonSetModeVoice.setOnClickListener(this);
         buttonMore.setOnClickListener(this);

@@ -185,6 +185,7 @@ public class EaseChatRowText extends EaseChatRow{
                                 // gif则按照gif展示，否则展示图片
                                 emojiView.setVisibility(View.VISIBLE);
                                 if (emoji.getMainImage().endsWith(".png")) {
+                                    emojiView.setMovie(null);
                                     Glide.with(activity).load(emoji.getMainImage()).placeholder(R.drawable.ease_default_expression).into(emojiView);
                                 } else if (emoji.getMainImage().endsWith(".gif")) {
                                     emojiView.setVisibility(View.VISIBLE);

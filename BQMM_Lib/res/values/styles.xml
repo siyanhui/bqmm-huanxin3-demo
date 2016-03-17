@@ -19,7 +19,7 @@
     </style>
     
      <!-- activity进入与退出 start -->
-    <style name="horizontal_slide" parent="android:Theme.NoTitleBar">
+    <style name="bqmm_horizontal_slide" parent="android:Theme.NoTitleBar">
         <item name="android:windowAnimationStyle">@style/AnimFade2</item>
     </style>
     

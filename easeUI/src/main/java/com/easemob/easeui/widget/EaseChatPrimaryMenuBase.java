@@ -67,6 +67,11 @@ public abstract class EaseChatPrimaryMenuBase extends RelativeLayout{
     public abstract BQMMSendButton getButtonSend();
 
     /**
+     * 获取切换表情键盘的按钮，主要是作为联想弹窗的锚点使用
+     */
+    public abstract View getKeyboardToggleButton();
+
+    /**
      * 整个扩展按钮栏(包括表情栏)隐藏
      */
     public abstract void onExtendMenuContainerHide();

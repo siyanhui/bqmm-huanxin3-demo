@@ -13,6 +13,8 @@ import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.ClipboardManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -61,6 +63,7 @@ import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
 import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
 import com.melink.bqmmsdk.widget.BQMMEditView;
+import com.melink.bqmmsdk.widget.BQMMPopupViewTask;
 import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 import org.json.JSONArray;
@@ -200,6 +203,28 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
          */
         BQMMKeyboard bqmmKeyboard = inputMenu.getEmojiconMenu();
         BQMMEditView bqmmEditView = inputMenu.getPrimaryMenu().getEditText();
+        /**
+         * 手动设置输入联想功能
+         */
+        bqmmEditView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                BQMMPopupViewTask popupViewTask = BQMMPopupViewTask.create(getContext());
+                popupViewTask.setEmojiEmoText(s.toString());
+                popupViewTask.setPopupView(inputMenu.getPrimaryMenu().getKeyboardToggleButton());
+                BQMM.getInstance().startEmojiPopupView(popupViewTask);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         BQMMSendButton bqmmSendButton = inputMenu.getPrimaryMenu().getButtonSend();
         BQMM bqmm=BQMM.getInstance();
         bqmm.setEditView(bqmmEditView);

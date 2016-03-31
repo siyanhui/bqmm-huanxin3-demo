@@ -63,7 +63,7 @@ import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
 import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
 import com.melink.bqmmsdk.widget.BQMMEditView;
-import com.melink.bqmmsdk.widget.BQMMPopupViewTask;
+import com.melink.bqmmsdk.task.BQMMPopupViewTask;
 import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 import org.json.JSONArray;
@@ -216,7 +216,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 BQMMPopupViewTask popupViewTask = BQMMPopupViewTask.create(getContext());
                 popupViewTask.setEmojiEmoText(s.toString());
-                popupViewTask.setPopupView(inputMenu.getPrimaryMenu().getKeyboardToggleButton());
+                popupViewTask.setPopupViewAnchor(inputMenu.getPrimaryMenu().getKeyboardToggleButton());
                 BQMM.getInstance().startEmojiPopupView(popupViewTask);
             }
 

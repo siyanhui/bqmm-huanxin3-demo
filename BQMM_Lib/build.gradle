@@ -9,7 +9,7 @@ buildscript {
 apply plugin: 'android-library'
 
 dependencies {
-    compile files('libs/bqmm_v1.3.1.jar')
+    compile files('libs/bqmm_v1.3.2.jar')
 }
 
 android {

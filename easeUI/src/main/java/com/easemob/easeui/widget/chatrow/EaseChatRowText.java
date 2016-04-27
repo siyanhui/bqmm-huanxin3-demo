@@ -273,7 +273,7 @@ public class EaseChatRowText extends EaseChatRow{
                                 }
                                 showTextInfo(tv_chatcontent,
                                         BQMM.getInstance().getMessageParser()
-                                                .a(messagecontent, emojis));
+                                                .parse(messagecontent, emojis));
                             }
                         });
                     }

@@ -100,6 +100,15 @@
             android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
+            android:name="com.melink.bqmmsdk.ui.store.EmojiPackageSort"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/horizontal_slide"
+            android:windowSoftInputMode="adjustPan" >
+        </activity>
+
+
+        <activity
             android:name="com.melink.bqmmsdk.ui.store.ServiceDeclaration"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

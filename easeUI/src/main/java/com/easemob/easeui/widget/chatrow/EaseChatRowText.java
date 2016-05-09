@@ -36,6 +36,7 @@ import com.melink.bqmmsdk.widget.UpdateListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -156,12 +157,23 @@ public class EaseChatRowText extends EaseChatRow{
         // 判断是否是表情文本
         String msgType;
         String dataStr;
+        String msg;
+        JSONObject msgBody;
         try {
-            msgType = message.getStringAttribute("txt_msgType");
-            dataStr = parseMsgData(message.getJSONArrayAttribute("msg_data"));
-        } catch (EaseMobException e) {
-            msgType = "";
-            dataStr = "";
+            //这里先按照新的消息格式进行解析。在新的消息格式中，表情的全部信息被放在一个Json字符串中。
+            msg = message.getStringAttribute("mm_ext");
+            msgBody = new JSONObject(msg);
+            msgType = msgBody.getString("txt_msgType");
+            dataStr = parseMsgData(msgBody.getJSONArray("msg_data"));
+        } catch (EaseMobException | JSONException e) {
+            //如果按照新的消息格式无法解析，则按照老格式进行解析。在老格式中，表情的类型和内容数据被用两个key分别存储
+            try {
+                msgType = message.getStringAttribute("txt_msgType");
+                dataStr = parseMsgData(message.getJSONArrayAttribute("msg_data"));
+            } catch (EaseMobException e1) {
+                msgType = "";
+                dataStr = "";
+            }
         }
         switch (msgType) {
             case EaseChatFragment.FACETYPE:

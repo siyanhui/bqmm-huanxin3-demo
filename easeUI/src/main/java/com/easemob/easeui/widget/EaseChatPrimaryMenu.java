@@ -277,6 +277,16 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
         return buttonSend;
     }
 
+    /**
+     * 将faceLayout暴露出去，方便作为表情联想弹窗的锚点
+     *
+     * @return faceLayout
+     */
+    @Override
+    public View getKeyboardToggleButton() {
+        return faceLayout;
+    }
+
     @Override
     public void onExtendMenuContainerHide() {
         showNormalFaceImage();

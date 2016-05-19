@@ -1,9 +1,5 @@
 package com.easemob.chatuidemo.ui;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,16 +22,20 @@ import com.easemob.chat.TextMessageBody;
 import com.easemob.chatuidemo.Constant;
 import com.easemob.chatuidemo.DemoHelper;
 import com.easemob.chatuidemo.R;
-import com.easemob.chatuidemo.domain.EmojiconExampleGroupData;
 import com.easemob.chatuidemo.domain.RobotUser;
 import com.easemob.chatuidemo.widget.ChatRowVoiceCall;
 import com.easemob.easeui.EaseConstant;
 import com.easemob.easeui.ui.EaseChatFragment;
 import com.easemob.easeui.ui.EaseChatFragment.EaseChatFragmentListener;
 import com.easemob.easeui.widget.chatrow.EaseChatRow;
+import com.easemob.easeui.widget.chatrow.EaseChatRowText;
 import com.easemob.easeui.widget.chatrow.EaseCustomChatRowProvider;
-import com.easemob.easeui.widget.emojicon.EaseEmojiconMenu;
+import com.easemob.exceptions.EaseMobException;
 import com.easemob.util.PathUtil;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Map;
 
 public class ChatFragment extends EaseChatFragment implements EaseChatFragmentListener{
 
@@ -97,6 +97,15 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentLi
         if (requestCode == REQUEST_CODE_CONTEXT_MENU) {
             switch (resultCode) {
             case ContextMenuActivity.RESULT_CODE_COPY: // 复制消息
+                try {
+                    String txtMsgType = contextMenuMessage.getStringAttribute("txt_msgType");
+                    if (!txtMsgType.equals(FACETYPE)) {
+                        clipboard.setText(EaseChatRowText.parseMsgData(contextMenuMessage.getJSONArrayAttribute("msg_data")));
+                        break;
+                    }
+                } catch (EaseMobException e) {
+                    e.printStackTrace();
+                }
                 clipboard.setText(((TextMessageBody) contextMenuMessage.getBody()).getMessage());
                 break;
             case ContextMenuActivity.RESULT_CODE_DELETE: // 删除消息
@@ -201,7 +210,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentLi
     @Override
     public void onMessageBubbleLongClick(EMMessage message) {
         //消息框长按
-        startActivityForResult((new Intent(getActivity(), ContextMenuActivity.class)).putExtra("message",message),
+        startActivityForResult((new Intent(getActivity(), ContextMenuActivity.class)).putExtra("message", message),
                 REQUEST_CODE_CONTEXT_MENU);
     }
 

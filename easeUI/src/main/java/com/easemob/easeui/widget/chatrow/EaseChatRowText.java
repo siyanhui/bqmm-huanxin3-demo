@@ -63,7 +63,17 @@ public class EaseChatRowText extends EaseChatRow{
 	protected void onFindViewById() {
 		contentView = (TextView) findViewById(R.id.tv_chatcontent);
         emojiView =(GifMovieView)findViewById(R.id.tv_sendGif);
-	}
+        /**
+         * emojiView的OnClickListener会让聊天气泡的长按事件失效，所以要在这里设置一个OnLongClickListener，让它调用bubbleLayout的长按事件
+         */
+        emojiView.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                bubbleLayout.performLongClick();
+                return true;
+            }
+        });
+    }
 
     @Override
     public void onSetUpView() {
@@ -119,7 +129,13 @@ public class EaseChatRowText extends EaseChatRow{
 
     }
 
-    private String parseMsgData(JSONArray msg_Data) {
+    /**
+     * 对存储在Json中的消息进行解析
+     *
+     * @param msg_Data
+     * @return 消息的文本表达
+     */
+    public static String parseMsgData(JSONArray msg_Data) {
         StringBuilder sendMsg = new StringBuilder();
         try {
             for (int i = 0; i < msg_Data.length(); i++) {
@@ -185,6 +201,7 @@ public class EaseChatRowText extends EaseChatRow{
                                 // gif则按照gif展示，否则展示图片
                                 emojiView.setVisibility(View.VISIBLE);
                                 if (emoji.getMainImage().endsWith(".png")) {
+                                    emojiView.setMovie(null);
                                     Glide.with(activity).load(emoji.getMainImage()).placeholder(R.drawable.ease_default_expression).into(emojiView);
                                 } else if (emoji.getMainImage().endsWith(".gif")) {
                                     emojiView.setVisibility(View.VISIBLE);

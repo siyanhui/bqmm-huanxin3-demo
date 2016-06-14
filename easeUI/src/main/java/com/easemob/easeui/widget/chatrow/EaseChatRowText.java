@@ -29,10 +29,7 @@ import com.melink.bqmmsdk.bean.Emoji;
 import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.sdk.IFetchEmojisByCodeListCallback;
 import com.melink.bqmmsdk.ui.store.EmojiDetail;
-import com.melink.bqmmsdk.widget.AnimatedGifDrawable;
-import com.melink.bqmmsdk.widget.AnimatedImageSpan;
 import com.melink.bqmmsdk.widget.GifMovieView;
-import com.melink.bqmmsdk.widget.UpdateListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -317,42 +314,11 @@ public class EaseChatRowText extends EaseChatRow{
                 sb.append(tempText);
                 // 此处需要判断，如果是非法Code，item的guid为空
                 if (item.getGuid() != null && !item.getGuid().equals("null")) {
-                    // 判断当前的Emoji对象是不是gif表情
-                    if (item.getThumbail().endsWith(".png")) {
-                        try {
-                            Bitmap bit = BitmapCreate.bitmapFromFile(
-                                    item.getPathofThumb(),
-                                    DensityUtils.dip2px(activity, 30),
-                                    DensityUtils.dip2px(activity, 30));
-                            sb.setSpan(new ImageSpan(activity, bit),
-                                    sb.length() - tempText.length(),
-                                    sb.length(),
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        try {
-                            // 判断缓存中是否以及有�?
-                            InputStream is = null;
-                            is = new FileInputStream(item.getPathofImage());
-                            sb.setSpan(
-                                    new AnimatedImageSpan(
-                                            new AnimatedGifDrawable(is, item
-                                                    .getPathofImage(),
-                                                    new UpdateListener() {
-                                                        @Override
-                                                        public void update() {
-                                                            tv_chatcontent
-                                                                    .postInvalidate();
-                                                        }
-                                                    })),
-                                    sb.length() - tempText.length(), sb
-                                            .length(),
-                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            is.close();
-                        } catch (Exception e) {
-                        }
+                    try {
+                        Bitmap bit = BitmapCreate.bitmapFromFile(item.getPathofThumb(), DensityUtils.dip2px(activity, 30), DensityUtils.dip2px(activity, 30));
+                        sb.setSpan(new ImageSpan(activity, bit), sb.length() - tempText.length(), sb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             } else {
@@ -360,6 +326,5 @@ public class EaseChatRowText extends EaseChatRow{
             }
         }
         tv_chatcontent.setText(sb);
-
     }
 }

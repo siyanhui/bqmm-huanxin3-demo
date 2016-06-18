@@ -25,7 +25,7 @@ import com.melink.bqmmsdk.widget.BQMMSendButton;
 public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnClickListener {
     /**
      * BQMM集成
-     * 将EditText改为表情MM提供的
+     * 将EditText改为BQMM提供的
      */
     private BQMMEditView editText;
     private View buttonSetModeKeyboard;

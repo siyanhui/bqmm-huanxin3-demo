@@ -203,7 +203,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
 
         /**
          * BQMM集成
-         * 初始化表情MM SDK
+         * 初始化BQMM
          */
         BQMMKeyboard bqmmKeyboard = inputMenu.getEmojiconMenu();
         BQMMEditView bqmmEditView = inputMenu.getPrimaryMenu().getEditText();

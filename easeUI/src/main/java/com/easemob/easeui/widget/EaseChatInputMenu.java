@@ -89,7 +89,7 @@ public class EaseChatInputMenu extends LinearLayout {
 
         /**
          * BQMM集成
-         * 表情栏，使用表情MM的键盘
+         * 表情栏，使用BQMM的键盘
          */
         emojiconMenu = (BQMMKeyboard) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
         if(emojiconGroupList == null){

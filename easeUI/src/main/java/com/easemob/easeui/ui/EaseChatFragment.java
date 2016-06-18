@@ -15,7 +15,6 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -61,18 +60,15 @@ import com.easemob.util.EMLog;
 import com.easemob.util.PathUtil;
 import com.melink.bqmmsdk.bean.Emoji;
 import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.sdk.BQMMMessageHelper;
 import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
 import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
 import com.melink.bqmmsdk.widget.BQMMEditView;
-import com.melink.bqmmsdk.task.BQMMPopupViewTask;
 import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -120,6 +116,10 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
     static final int ITEM_PICTURE = 2;
     static final int ITEM_LOCATION = 3;
 
+    /**
+     * BQMM集成
+     * 以下是两个用于表示消息类型的常量
+     */
 	public static final String EMOJITYPE = "emojitype";
 	public static final String FACETYPE = "facetype";
 
@@ -202,11 +202,13 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         /**
+         * BQMM集成
          * 初始化表情MM SDK
          */
         BQMMKeyboard bqmmKeyboard = inputMenu.getEmojiconMenu();
         BQMMEditView bqmmEditView = inputMenu.getPrimaryMenu().getEditText();
         /**
+         * BQMM集成
          * 手动设置输入联想功能
          */
         bqmmEditView.addTextChangedListener(new TextWatcher() {
@@ -217,10 +219,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                BQMMPopupViewTask popupViewTask = BQMMPopupViewTask.create(getContext());
-                popupViewTask.setEmojiEmoText(s.toString());
-                popupViewTask.setPopupViewAnchor(inputMenu.getPrimaryMenu().getKeyboardToggleButton());
-                BQMM.getInstance().startEmojiPopupView(popupViewTask);
+                BQMM.getInstance().startShortcutPopupWindow(getContext(), s.toString(), inputMenu.getPrimaryMenu().getKeyboardToggleButton());
             }
 
             @Override
@@ -228,27 +227,37 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
 
             }
         });
+        /**
+         * BQMM集成
+         * 传入初始化必须的一些对象
+         */
         BQMMSendButton bqmmSendButton = inputMenu.getPrimaryMenu().getButtonSend();
         BQMM bqmm=BQMM.getInstance();
         bqmm.setEditView(bqmmEditView);
         bqmm.setKeyboard(bqmmKeyboard);
         bqmm.setSendButton(bqmmSendButton);
+        /**
+         * BQMM集成
+         * 初始化BQMM
+         */
         bqmm.load();
+        /**
+         * BQMM集成
+         * 设置发送表情的回调，两个回调分别在发送大表情和发送图文混排表情时调用
+         */
         bqmm.setBqmmSendMsgListener(new IBqmmSendMessageListener() {
             @Override
             public void onSendFace(Emoji face) {
-                List<Object> listFace = new ArrayList<Object>();
-                listFace.add(face);
-                JSONArray msgCodes = getMixedMessageCodes(listFace);
-                sendFaceText(face.getEmoText(), msgCodes, FACETYPE);
+                JSONArray msgCodes = BQMMMessageHelper.getFaceMessageData(face);
+                sendFaceText(BQMMMessageHelper.getFaceMessageString(face), msgCodes, FACETYPE);
             }
 
             @Override
             public void onSendMixedMessage(List<Object> emojis, boolean isMixedMessage) {
-                String msgString = getMixedMessageString(emojis);
+                String msgString = BQMMMessageHelper.getMixedMessageString(emojis);
                 //判断一下是纯文本还是富文本
                 if (isMixedMessage) {
-                    JSONArray msgCodes = getMixedMessageCodes(emojis);
+                    JSONArray msgCodes = BQMMMessageHelper.getMixedMessageData(emojis);
                     sendFaceText(msgString, msgCodes, EMOJITYPE);
                 } else {
                     sendTextMessage(msgString);
@@ -260,6 +269,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
     }
 
     /**
+     * BQMM集成
      * 发送表情文本
      *
      * @param content message content
@@ -272,56 +282,17 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
             TextMessageBody txtBody = new TextMessageBody(content);
             // 设置消息body
             message.addBody(txtBody);
-            JSONObject msgBody=new JSONObject();
-            try {
-                msgBody.put("txt_msgType", type);
-                msgBody.put("msg_data", msgData);
-                message.setAttribute("mm_ext",msgBody.toString());
-                // 设置要发给谁,用户username或者群聊groupid
-                message.setReceipt(toChatUsername);
-                sendMessage(message);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            message.setAttribute("txt_msgType", type);
+            message.setAttribute("msg_data", msgData);
 
+            // 设置要发给谁,用户username或者群聊groupid
+            message.setReceipt(toChatUsername);
+            sendMessage(message);
             //发送大表情时，不清空EditView
 //            if(!type.equals(FACETYPE)){
 //                bqmmEditText.setText("");
 //            }
         }
-    }
-
-    /**
-     * @param emojis
-     * @return 表情的code表示
-     */
-    private JSONArray getMixedMessageCodes(List<Object> emojis) {
-        List<JSONArray> msgCodeList = new ArrayList<JSONArray>();
-        for (int i = 0; i < emojis.size(); i++) {
-            JSONArray codeList = new JSONArray();
-            if (emojis.get(i) instanceof Emoji) {
-                codeList.put(((Emoji) emojis.get(i)).getEmoCode());
-                codeList.put("1");
-            } else {
-                codeList.put(emojis.get(i).toString());
-                codeList.put("0");
-            }
-            msgCodeList.add(codeList);
-        }
-        return new JSONArray(msgCodeList);
-    }
-
-    private String getMixedMessageString(List<Object> emojis) {
-        // 获得bqmm_edit中的数据，做页面上的处理
-        StringBuffer sendMsg = new StringBuffer();
-        for (int i = 0; i < emojis.size(); i++) {
-            if (emojis.get(i) instanceof Emoji) {
-                sendMsg.append("[" + ((Emoji) emojis.get(i)).getEmoText() + "]");
-            } else {
-                sendMsg.append(emojis.get(i).toString());
-            }
-        }
-        return sendMsg.toString();
     }
 
     /**
@@ -354,7 +325,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
             onConversationInit();
             onMessageListInit();
         }
-        ;
 
         // 设置标题栏点击事件
         titleBar.setLeftLayoutClickListener(new OnClickListener() {

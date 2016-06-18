@@ -27,39 +27,21 @@
             android:background="@drawable/ease_default_avatar"
             android:scaleType="fitXY" />
 
-        <RelativeLayout
-            android:id="@+id/bubble"
+        <!--BQMM集成-->
+        <!--将此处改为BQMMMessageText-->
+        <com.melink.bqmmsdk.widget.BQMMMessageText
+            android:id="@+id/tv_chatcontent"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
+            android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/margin_chat_activity"
             android:layout_toLeftOf="@id/iv_userhead"
-            android:layout_below="@+id/tv_userid"
-             android:background="@drawable/ease_chatto_bg"
-            >
+            android:autoLink="web"
+            android:background="@drawable/bqmm_chatto_bg"
+            android:gravity="left|center"
+            android:lineSpacingExtra="2dp"
+            android:maxWidth="225.0dip"
+            android:paddingLeft="8dip" />
 
-            <TextView
-                android:id="@+id/tv_chatcontent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:autoLink="web"
-                android:layout_centerInParent="true"
-                android:gravity="center|left"
-                android:paddingRight="6dp"
-                android:paddingLeft="1dp"
-                android:minHeight="38dp"
-                android:lineSpacingExtra="2dp"
-              	android:textColor="#000000"
-                android:maxWidth="225.0dip"
-                android:textSize="15sp" />
-            <!-- 展示gif图片用 -->
-            <com.melink.bqmmsdk.widget.GifMovieView
-                android:id="@+id/tv_sendGif"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:layout_marginLeft="@dimen/margin_chat_activity"
-                android:visibility="gone" />
-        </RelativeLayout>
-        
        <!--  <TextView
             android:id="@+id/tv_userid"
             android:visibility="gone"

@@ -68,6 +68,7 @@
             android:layout_weight="1"
             android:gravity="bottom" >
 
+            <!--BQMM集成 将此处的EditText改为BQMMEditView-->
             <com.melink.bqmmsdk.widget.BQMMEditView
                 android:id="@+id/et_sendmessage"
                 android:layout_width="match_parent"
@@ -118,6 +119,7 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/ease_type_select_btn" />
 
+        <!--BQMM集成 将此处的Button改为BQMMSendButton-->
         <com.melink.bqmmsdk.widget.BQMMSendButton
             android:id="@+id/btn_send"
             android:layout_width="wrap_content"

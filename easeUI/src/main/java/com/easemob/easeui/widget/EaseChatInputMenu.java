@@ -29,12 +29,10 @@ import java.util.List;
  */
 public class EaseChatInputMenu extends LinearLayout {
     FrameLayout primaryMenuContainer, emojiconMenuContainer;
-    /**
-     * 表情MM输入框和发送按钮在这个PrimaryMenu里面
-     */
     protected EaseChatPrimaryMenuBase chatPrimaryMenu;
     /**
-     * 表情MM键盘在这里
+     * BQMM集成
+     * 将原有的表情键盘改成BQMMKeyboard
      */
     protected BQMMKeyboard emojiconMenu;
     protected EaseChatExtendMenu chatExtendMenu;
@@ -89,7 +87,10 @@ public class EaseChatInputMenu extends LinearLayout {
         }
         primaryMenuContainer.addView(chatPrimaryMenu);
 
-        // 表情栏，使用表情MM的键盘
+        /**
+         * BQMM集成
+         * 表情栏，使用表情MM的键盘
+         */
         emojiconMenu = (BQMMKeyboard) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
         if(emojiconGroupList == null){
             emojiconGroupList = new ArrayList<EaseEmojiconGroupEntity>();
@@ -124,7 +125,11 @@ public class EaseChatInputMenu extends LinearLayout {
     public EaseChatExtendMenu getExtendMenu(){
         return chatExtendMenu;
     }
-    
+
+    /**
+     * BQMM集成
+     * 将返回类型改为BQMMKeyboard
+     */
     public BQMMKeyboard getEmojiconMenu(){
         return emojiconMenu;
     }
@@ -204,6 +209,10 @@ public class EaseChatInputMenu extends LinearLayout {
                 return false;
             }
         });
+        /**
+         * BQMM集成
+         * 此处删去初始化原有表情键盘的逻辑
+         */
     }
 
     /**

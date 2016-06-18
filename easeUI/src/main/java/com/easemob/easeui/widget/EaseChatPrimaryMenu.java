@@ -24,6 +24,7 @@ import com.melink.bqmmsdk.widget.BQMMSendButton;
  */
 public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnClickListener {
     /**
+     * BQMM集成
      * 将EditText改为表情MM提供的
      */
     private BQMMEditView editText;
@@ -31,6 +32,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     private RelativeLayout edittext_layout;
     private View buttonSetModeVoice;
     /**
+     * BQMM集成
      * 发送按钮也如此修改
      */
     private BQMMSendButton buttonSend;
@@ -59,10 +61,18 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     private void init(final Context context, AttributeSet attrs) {
         this.context = context;
         LayoutInflater.from(context).inflate(R.layout.ease_widget_chat_primary_menu, this);
+        /**
+         * BQMM集成
+         * 修改类型
+         */
         editText = (BQMMEditView) findViewById(R.id.et_sendmessage);
         buttonSetModeKeyboard = findViewById(R.id.btn_set_mode_keyboard);
         edittext_layout = (RelativeLayout) findViewById(R.id.edittext_layout);
         buttonSetModeVoice = findViewById(R.id.btn_set_mode_voice);
+        /**
+         * BQMM集成
+         * 修改类型
+         */
         buttonSend = (BQMMSendButton) findViewById(R.id.btn_send);
         buttonPressToSpeak = findViewById(R.id.btn_press_to_speak);
         faceNormal = (ImageView) findViewById(R.id.iv_face_normal);
@@ -70,7 +80,12 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
         faceLayout = (RelativeLayout) findViewById(R.id.rl_face);
         buttonMore = (Button) findViewById(R.id.btn_more);
         edittext_layout.setBackgroundResource(R.drawable.ease_input_bar_bg_normal);
-        
+
+        /**
+         * BQMM集成
+         * 发送按钮的点击事件会由BQMM本身进行处理，此处删去一行
+         * buttonSend.setOnClickListener(this);
+         */
         buttonSetModeKeyboard.setOnClickListener(this);
         buttonSetModeVoice.setOnClickListener(this);
         buttonMore.setOnClickListener(this);
@@ -258,6 +273,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
 
     /**
+     * BQMM集成
      * 将editText暴露出去，方便在BQMM中注册
      *
      * @return editText
@@ -268,6 +284,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
 
     /**
+     * BQMM集成
      * 将buttonSend暴露出去，方便在BQMM中注册
      *
      * @return buttonSend
@@ -278,6 +295,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
 
     /**
+     * BQMM集成
      * 将faceLayout暴露出去，方便作为表情联想弹窗的锚点
      *
      * @return faceLayout

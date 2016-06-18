@@ -97,6 +97,10 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentLi
         if (requestCode == REQUEST_CODE_CONTEXT_MENU) {
             switch (resultCode) {
             case ContextMenuActivity.RESULT_CODE_COPY: // 复制消息
+                /**
+                 * BQMM集成
+                 * 在复制消息时，需要对该条消息进行一定的转换，以让其中的表情信息可以在粘贴时被BQMM输入框识别
+                 */
                 try {
                     String txtMsgType = contextMenuMessage.getStringAttribute("txt_msgType");
                     if (!txtMsgType.equals(FACETYPE)) {

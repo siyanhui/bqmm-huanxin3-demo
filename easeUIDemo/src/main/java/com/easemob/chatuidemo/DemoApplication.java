@@ -43,6 +43,7 @@ public class DemoApplication extends Application {
         DemoHelper.getInstance().init(applicationContext);
 
 		/**
+		 * BQMM集成
 		 * 首先从AndroidManifest.xml中取得appId和appSecret，然后对BQMM SDK进行初始化
 		 */
 		try {

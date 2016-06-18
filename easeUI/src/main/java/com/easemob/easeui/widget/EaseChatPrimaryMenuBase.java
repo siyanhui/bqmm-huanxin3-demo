@@ -57,16 +57,19 @@ public abstract class EaseChatPrimaryMenuBase extends RelativeLayout{
     public abstract void onEmojiconDeleteEvent();
 
     /**
+     * BQMM集成
      * 为了在组装UI时取得输入框，必须在抽象类中定义这个方法
      */
     public abstract BQMMEditView getEditText();
 
     /**
+     * BQMM集成
      * 为了在组装UI时取得发送按钮，必须在抽象类中定义这个方法
      */
     public abstract BQMMSendButton getButtonSend();
 
     /**
+     * BQMM集成
      * 获取切换表情键盘的按钮，主要是作为联想弹窗的锚点使用
      */
     public abstract View getKeyboardToggleButton();

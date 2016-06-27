@@ -560,6 +560,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
         if(chatRoomChangeListener != null){
             EMChatManager.getInstance().removeChatRoomChangeListener(chatRoomChangeListener);
         }
+        BQMM.getInstance.destory();
     }
 
     /**

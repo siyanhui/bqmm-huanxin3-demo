@@ -35,12 +35,14 @@ public class EaseChatRowText extends EaseChatRow{
         contentView.setBigEmojiShowSize(200);
         /**
          * BQMM集成
-         * contentView的OnClickListener会让聊天气泡的长按事件失效，所以要在这里设置一个OnLongClickListener，让它调用bubbleLayout的长按事件
+         * 我们用这个View代替了原先的bubbleLayout，所以要在这里设置一个OnLongClickListener，让它调用和bubbleLayout相同的逻辑
          */
         contentView.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                bubbleLayout.performLongClick();
+                if (itemClickListener != null) {
+                    itemClickListener.onBubbleLongClick(message);
+                }
                 return true;
             }
         });

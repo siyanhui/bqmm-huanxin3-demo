@@ -238,7 +238,7 @@ public abstract class EaseChatRow extends LinearLayout {
     private void setClickListener() {
         if(bubbleLayout != null){
             bubbleLayout.setOnClickListener(new OnClickListener() {
-    
+
                 @Override
                 public void onClick(View v) {
                     if (itemClickListener != null){

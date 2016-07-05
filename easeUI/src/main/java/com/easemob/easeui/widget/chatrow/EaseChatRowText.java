@@ -52,7 +52,14 @@ public class EaseChatRowText extends EaseChatRow{
     public void onSetUpView() {
         /**
          * BQMM集成
-         * 加载消息的逻辑较为复杂，我们把它写在另一个函数中
+         * 加载消息时的步骤如下：
+         * 从消息中解析出Message Type和Message Data，
+         * 前者可以是“facetype”或者“emojitype”，分别代表单个大表情和含有表情的文字消息
+         * 后者是由BQMMMessageHelper.getMixedMessageData()函数生成的
+         * 然后调用BQMMMessageText.showMessage()函数，该函数共四个参数，该消息的一个唯一ID、纯文本消息（说明见下）、Message Type、Message Data
+         * 对于由BQMM生成的消息，Message Data即含有该消息的全部内容。但出于兼容性考虑，可能有一些纯文本的历史消息需要显示
+         * 这个时候，只需要将纯文本消息作为第二个参数传入，并将Message Type传为空字符串，Message Data传为null，
+         * BQMMMessageText会作为一个普通TextView将消息直接展示出来
          */
         String msgType;
         JSONArray msgData;
@@ -63,7 +70,7 @@ public class EaseChatRowText extends EaseChatRow{
             msgType = "";
             msgData = null;
         }
-        contentView.showMessage(message.getMsgId(),((TextMessageBody)message.getBody()).getMessage(),msgType,msgData);
+        contentView.showMessage(message.getMsgId(), ((TextMessageBody) message.getBody()).getMessage(), msgType, msgData);
         handleTextMessage();
     }
 

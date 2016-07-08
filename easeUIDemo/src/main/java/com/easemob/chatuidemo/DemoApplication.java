@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.melink.bqmmsdk.sdk.BQMM;
+import com.tencent.bugly.crashreport.CrashReport;
 
 public class DemoApplication extends Application {
 
@@ -52,6 +53,7 @@ public class DemoApplication extends Application {
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}
+		CrashReport.initCrashReport(getApplicationContext());
 	}
 
 	public static DemoApplication getInstance() {

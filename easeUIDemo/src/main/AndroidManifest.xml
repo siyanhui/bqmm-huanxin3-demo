@@ -30,6 +30,8 @@
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!--bugly-->
+    <uses-permission android:name="android.permission.READ_LOGS" />
 
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -469,7 +471,19 @@
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="3ecea51f560650b1ed8a4b99808f52e8" />
-        
+
+        <meta-data
+            android:name="BUGLY_APPID"
+            android:value="dfc61e72da" />
+        <meta-data
+            android:name="BUGLY_APP_VERSION"
+            android:value="1.6.1" />
+        <meta-data
+            android:name="BUGLY_APP_CHANNEL"
+            android:value="alpha" />
+        <meta-data
+            android:name="BUGLY_ENABLE_DEBUG"
+            android:value="true" />
     </application>
 
 </manifest>

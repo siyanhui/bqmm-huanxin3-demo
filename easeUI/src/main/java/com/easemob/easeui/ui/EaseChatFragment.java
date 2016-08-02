@@ -207,6 +207,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
          */
         BQMMKeyboard bqmmKeyboard = inputMenu.getEmojiconMenu();
         BQMMEditView bqmmEditView = inputMenu.getPrimaryMenu().getEditText();
+        final BQMMSendButton bqmmSendButton = inputMenu.getPrimaryMenu().getButtonSend();
         /**
          * BQMM集成
          * 手动设置输入联想功能
@@ -219,7 +220,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                BQMM.getInstance().startShortcutPopupWindow(getContext(), s.toString(), inputMenu.getPrimaryMenu().getKeyboardToggleButton());
+                BQMM.getInstance().startShortcutPopupWindow(getContext(), s.toString(), bqmmSendButton);
             }
 
             @Override
@@ -231,7 +232,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMEventListene
          * BQMM集成
          * 传入初始化必须的一些对象
          */
-        BQMMSendButton bqmmSendButton = inputMenu.getPrimaryMenu().getButtonSend();
         BQMM bqmm=BQMM.getInstance();
         bqmm.setEditView(bqmmEditView);
         bqmm.setKeyboard(bqmmKeyboard);

@@ -1,2 +1,0 @@
-include ':easeUI', ':BQMM_Lib'
-include ':easeUIDemo'

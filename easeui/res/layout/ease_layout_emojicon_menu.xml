@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenu xmlns:android="http://schemas.android.com/apk/res/android"
+<!--BQMM集成 将表情键盘替换为BQMM键盘 -->
+<com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/emojicon"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" />

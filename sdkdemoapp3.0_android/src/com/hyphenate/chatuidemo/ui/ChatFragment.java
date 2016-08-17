@@ -49,6 +49,9 @@ import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EasyUtils;
 import com.hyphenate.util.PathUtil;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHelper{
 
     //避免和基类定义的常量可能发生的冲突，常量从11开始定义
@@ -109,7 +112,10 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
                 getActivity().finish();
             }
         });
-        ((EaseEmojiconMenu)inputMenu.getEmojiconMenu()).addEmojiconGroup(EmojiconExampleGroupData.getData());
+        /**
+         * BQMM集成
+         * 删去对表情栏内容的设置
+         */
         if(chatType == EaseConstant.CHATTYPE_GROUP){
             inputMenu.getPrimaryMenu().getEditText().addTextChangedListener(new TextWatcher() {
                 
@@ -168,7 +174,34 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         if (requestCode == REQUEST_CODE_CONTEXT_MENU) {
             switch (resultCode) {
             case ContextMenuActivity.RESULT_CODE_COPY: // 复制消息
-                clipboard.setPrimaryClip(ClipData.newPlainText(null, 
+                /**
+                 * BQMM集成
+                 * 在进行复制时，对待复制的内容进行预处理
+                 */
+                try {
+                    String txtMsgType = contextMenuMessage.getStringAttribute(EaseConstant.BQMM_MESSAGE_KEY_TYPE);
+                    JSONArray msg_Data = contextMenuMessage.getJSONArrayAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT);
+                    if (txtMsgType.equals(EaseConstant.BQMM_MESSAGE_TYPE_MIXED)) {
+                        StringBuilder message = new StringBuilder();
+                        try {
+                            for (int i = 0; i < msg_Data.length(); i++) {
+                                JSONArray childArray = msg_Data.getJSONArray(i);
+                                if (childArray.get(1).equals("1")) {
+                                    message.append("[").append(childArray.get(0)).append("]");
+                                } else {
+                                    message.append(childArray.get(0));
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        clipboard.setPrimaryClip(ClipData.newPlainText(null, message.toString()));
+                        break;
+                    }
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+                clipboard.setPrimaryClip(ClipData.newPlainText(null,
                         ((EMTextMessageBody) contextMenuMessage.getBody()).getMessage()));
                 break;
             case ContextMenuActivity.RESULT_CODE_DELETE: // 删除消息

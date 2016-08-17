@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Gravity;
@@ -54,6 +55,12 @@ import com.hyphenate.easeui.widget.EaseVoiceRecorderView.EaseVoiceRecorderCallba
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
+import com.melink.bqmmsdk.bean.Emoji;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.sdk.BQMMMessageHelper;
+import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
+
+import org.json.JSONArray;
 
 import java.io.File;
 import java.util.List;
@@ -180,6 +187,34 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
         inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        /**
+         * BQMM集成
+         * 初始化BQMM
+         */
+        BQMM.getInstance().load();
+        /**
+         * BQMM集成
+         * 设置发送表情的回调，两个回调分别在发送大表情和发送图文混排表情时调用
+         */
+        BQMM.getInstance().setBqmmSendMsgListener(new IBqmmSendMessageListener() {
+            @Override
+            public void onSendFace(Emoji face) {
+                sendBQMMStickerMessage(face);
+            }
+
+            @Override
+            public void onSendMixedMessage(List<Object> emojis, boolean isMixedMessage) {
+                String msgString = BQMMMessageHelper.getMixedMessageString(emojis);
+                //判断一下是纯文本还是富文本
+                if (isMixedMessage) {
+                    sendBQMMMixedMessage(emojis);
+                } else {
+                    sendTextMessage(msgString);
+                }
+            }
+
+        });
     }
 
     /**
@@ -669,7 +704,50 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
     protected void inputAtUsername(String username){
         inputAtUsername(username, true);
     }
-    
+
+    /**
+     * BQMM集成
+     * 发送BQMM表情消息
+     *
+     * @param sticker 要发送的表情
+     */
+    protected void sendBQMMStickerMessage(@NonNull Emoji sticker) {
+        sendBQMMMessage(BQMMMessageHelper.getFaceMessageString(sticker), BQMMMessageHelper.getFaceMessageData(sticker), EaseConstant.BQMM_MESSAGE_TYPE_STICKER);
+    }
+
+    /**
+     * BQMM集成
+     * 发送BQMM混合消息
+     *
+     * @param messageContent 要发送的消息
+     */
+    protected void sendBQMMMixedMessage(@NonNull List<Object> messageContent) {
+        sendBQMMMessage(BQMMMessageHelper.getMixedMessageString(messageContent), BQMMMessageHelper.getMixedMessageData(messageContent), EaseConstant.BQMM_MESSAGE_TYPE_MIXED);
+    }
+
+    /**
+     * BQMM集成
+     * 发送BQMM消息
+     *
+     * @param content 要发送的文本消息
+     * @param content 要发送的BQMM JSON消息
+     */
+    private void sendBQMMMessage(@NonNull String content, @NonNull JSONArray messageJSONArray, @NonNull String type) {
+        EMMessage message;
+        if (EaseAtMessageHelper.get().containsAtUsername(content)) {
+            if (chatType != EaseConstant.CHATTYPE_GROUP) {
+                EMLog.e(TAG, "only support group chat message");
+                return;
+            }
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+            message.setAttribute(EaseConstant.MESSAGE_ATTR_AT_MSG, EaseAtMessageHelper.get().atListToString(EaseAtMessageHelper.get().getAtMessageUsername(content)));
+        } else {
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        }
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_TYPE, type);
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT, messageJSONArray);
+        sendMessage(message);
+    }
 
     //发送消息方法
     //==========================================================================

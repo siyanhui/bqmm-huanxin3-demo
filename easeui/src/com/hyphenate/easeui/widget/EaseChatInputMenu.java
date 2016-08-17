@@ -23,6 +23,8 @@ import com.hyphenate.easeui.widget.EaseChatPrimaryMenuBase.EaseChatPrimaryMenuLi
 import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenu;
 import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase;
 import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase.EaseEmojiconMenuListener;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
 
 /**
  * 聊天页面底部的聊天输入菜单栏 <br/>
@@ -33,7 +35,11 @@ import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase.EaseEmojiconMen
 public class EaseChatInputMenu extends LinearLayout {
     FrameLayout primaryMenuContainer, emojiconMenuContainer;
     protected EaseChatPrimaryMenuBase chatPrimaryMenu;
-    protected EaseEmojiconMenuBase emojiconMenu;
+    /**
+     * BQMM集成
+     * 将原有的表情键盘改成BQMMKeyboard
+     */
+    protected BQMMKeyboard emojiconMenu;
     protected EaseChatExtendMenu chatExtendMenu;
     protected FrameLayout chatExtendMenuContainer;
     protected LayoutInflater layoutInflater;
@@ -86,15 +92,13 @@ public class EaseChatInputMenu extends LinearLayout {
         }
         primaryMenuContainer.addView(chatPrimaryMenu);
 
-        // 表情栏，没有自定义的用默认的
-        if(emojiconMenu == null){
-            emojiconMenu = (EaseEmojiconMenu) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
-            if(emojiconGroupList == null){
-                emojiconGroupList = new ArrayList<EaseEmojiconGroupEntity>();
-                emojiconGroupList.add(new EaseEmojiconGroupEntity(R.drawable.ee_1,  Arrays.asList(EaseDefaultEmojiconDatas.getData())));
-            }
-            ((EaseEmojiconMenu)emojiconMenu).init(emojiconGroupList);
-        }
+        /**
+         * BQMM集成
+         * 将表情栏改为BQMM的键盘，并传递给BQMM
+         */
+        emojiconMenu = (BQMMKeyboard) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
+        BQMM.getInstance().setKeyboard(emojiconMenu);
+
         emojiconMenuContainer.addView(emojiconMenu);
 
         processChatMenu();
@@ -107,16 +111,12 @@ public class EaseChatInputMenu extends LinearLayout {
     public void init(){
         init(null);
     }
-    
+
     /**
-     * 设置自定义的表情栏，该控件需要继承自EaseEmojiconMenuBase，
-     * 以及回调你想要回调出去的事件给设置的EaseEmojiconMenuListener
-     * @param customEmojiconMenu
+     * BQMM集成
+     * 这里移除对表情栏的自定义功能
      */
-    public void setCustomEmojiconMenu(EaseEmojiconMenuBase customEmojiconMenu){
-        this.emojiconMenu = customEmojiconMenu;
-    }
-    
+
     /**
      * 设置自定义的主菜单栏，该控件需要继承自EaseChatPrimaryMenuBase，
      * 以及回调你想要回调出去的事件给设置的EaseEmojiconMenuListener
@@ -133,8 +133,12 @@ public class EaseChatInputMenu extends LinearLayout {
     public EaseChatExtendMenu getExtendMenu(){
         return chatExtendMenu;
     }
-    
-    public EaseEmojiconMenuBase getEmojiconMenu(){
+
+    /**
+     * BQMM集成
+     * 将返回类型修改为BQMMKeyboard
+     */
+    public BQMMKeyboard getEmojiconMenu(){
         return emojiconMenu;
     }
     
@@ -214,27 +218,10 @@ public class EaseChatInputMenu extends LinearLayout {
             }
         });
 
-        // emojicon menu
-        emojiconMenu.setEmojiconMenuListener(new EaseEmojiconMenuListener() {
-
-            @Override
-            public void onExpressionClicked(EaseEmojicon emojicon) {
-                if(emojicon.getType() != EaseEmojicon.Type.BIG_EXPRESSION){
-                    if(emojicon.getEmojiText() != null){
-                        chatPrimaryMenu.onEmojiconInputEvent(EaseSmileUtils.getSmiledText(context,emojicon.getEmojiText()));
-                    }
-                }else{
-                    if(listener != null){
-                        listener.onBigExpressionClicked(emojicon);
-                    }
-                }
-            }
-
-            @Override
-            public void onDeleteImageClicked() {
-                chatPrimaryMenu.onEmojiconDeleteEvent();
-            }
-        });
+        /**
+         * BQMM集成
+         * 这里移除对表情栏监听器的设置
+         */
 
     }
     

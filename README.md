@@ -12,4 +12,4 @@
 
 本Demo由表情云开发者在环信官方3.0 Demo的基础上集成了BQMM SDK之后发布。集成的全过程都能在Git中找到记录，可以作为其他开发者们的参考。
 
-要查看集成最新版SDK需要更改的代码，请[点击这里](https://github.com/siyanhui/bqmm-huanxin3-demo/compare/e9bd02bf0e3a6052a4d8c4e35e8d0b239d2da77d...master#files_bucket)。
+要查看集成最新版SDK需要更改的代码，请[点击这里](https://github.com/siyanhui/bqmm-huanxin3-demo-android/compare/2d388e1cb7ff751842e0e000838e921a57154e1f...master#files_bucket)。

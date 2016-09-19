@@ -60,7 +60,7 @@ public class EaseChatRowText extends EaseChatRow{
          * BQMM集成
          * 设置大表情的显示大小
          */
-        contentView.setStickerSize(DensityUtils.dip2px(context, 100));
+        contentView.setStickerSize(DensityUtils.dip2px(100));
     }
 
     @Override

@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
-import com.baidu.location.BDNotifyListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
@@ -54,10 +53,8 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 	private final static String TAG = "map";
 	static MapView mMapView = null;
 	FrameLayout mMapViewContainer = null;
-	// 定位相关
 	LocationClient mLocClient;
 	public MyLocationListenner myListener = new MyLocationListenner();
-	public NotifyLister mNotifyer = null;
 
 	Button sendButton = null;
 
@@ -68,12 +65,7 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 	public static EaseBaiduMapActivity instance = null;
 	ProgressDialog progressDialog;
 	private BaiduMap mBaiduMap;
-	
-	private LocationMode mCurrentMode;
-	
-	/**
-	 * 构造广播监听类，监听 SDK key 验证以及网络异常广播
-	 */
+
 	public class BaiduSDKReceiver extends BroadcastReceiver {
 		public void onReceive(Context context, Intent intent) {
 			String s = intent.getAction();
@@ -95,15 +87,14 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		instance = this;
-		//在使用SDK各组件之前初始化context信息，传入ApplicationContext  
-        //注意该方法要再setContentView方法之前实现  
+		//initialize SDK with context, should call this before setContentView
         SDKInitializer.initialize(getApplicationContext());  
 		setContentView(R.layout.ease_activity_baidumap);
 		mMapView = (MapView) findViewById(R.id.bmapView);
 		sendButton = (Button) findViewById(R.id.btn_location_send);
 		Intent intent = getIntent();
 		double latitude = intent.getDoubleExtra("latitude", 0);
-		mCurrentMode = LocationMode.NORMAL;
+		LocationMode mCurrentMode = LocationMode.NORMAL;
 		mBaiduMap = mMapView.getMap();
 		MapStatusUpdate msu = MapStatusUpdateFactory.zoomTo(15.0f);
 		mBaiduMap.setMapStatus(msu);
@@ -111,7 +102,7 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 		if (latitude == 0) {
 			mMapView = new MapView(this, new BaiduMapOptions());
 			mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
-							mCurrentMode, true, null));
+					mCurrentMode, true, null));
 			showMapWithLocationClient();
 		} else {
 			double longtitude = intent.getDoubleExtra("longitude", 0);
@@ -122,7 +113,6 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 							.target(p).build()));
 			showMap(latitude, longtitude, address);
 		}
-		// 注册 SDK 广播监听者
 		IntentFilter iFilter = new IntentFilter();
 		iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR);
 		iFilter.addAction(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR);
@@ -169,8 +159,8 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 		mLocClient.registerLocationListener(myListener);
 
 		LocationClientOption option = new LocationClientOption();
-		option.setOpenGps(true);// 打开gps
-		// option.setCoorType("bd09ll"); //设置坐标类型
+		option.setOpenGps(true);// open gps
+		// option.setCoorType("bd09ll"); 
 		// Johnson change to use gcj02 coordination. chinese national standard
 		// so need to conver to bd09 everytime when draw on baidu map
 		option.setCoorType("gcj02");
@@ -211,7 +201,7 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 	}
 
 	/**
-	 * 监听函数，有新位置的时候，格式化成字符串，输出到屏幕中
+	 * format new location to string and show on screen
 	 */
 	public class MyLocationListenner implements BDLocationListener {
 		@Override
@@ -252,11 +242,6 @@ public class EaseBaiduMapActivity extends EaseBaseActivity {
 			if (poiLocation == null) {
 				return;
 			}
-		}
-	}
-
-	public class NotifyLister extends BDNotifyListener {
-		public void onNotify(BDLocation mlocation, float distance) {
 		}
 	}
 

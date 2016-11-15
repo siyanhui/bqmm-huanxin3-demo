@@ -1,20 +1,5 @@
 package com.hyphenate.easeui.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
-import com.hyphenate.EMConnectionListener;
-import com.hyphenate.EMConversationListener;
-import com.hyphenate.EMError;
-import com.hyphenate.chat.EMChatManager;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMConversation;
-import com.hyphenate.easeui.R;
-import com.hyphenate.easeui.widget.EaseConversationList;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,8 +20,22 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
+import com.hyphenate.EMConnectionListener;
+import com.hyphenate.EMConversationListener;
+import com.hyphenate.EMError;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
+import com.hyphenate.easeui.R;
+import com.hyphenate.easeui.widget.EaseConversationList;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 /**
- * 会话列表fragment
+ * conversation list fragment
  *
  */
 public class EaseConversationListFragment extends EaseBaseFragment{
@@ -74,11 +73,9 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     @Override
     protected void initView() {
         inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        //会话列表控件
         conversationListView = (EaseConversationList) getView().findViewById(R.id.list);
-        // 搜索框
         query = (EditText) getView().findViewById(R.id.query);
-        // 搜索框中清除button
+        // button to clear content in search bar
         clearSearch = (ImageButton) getView().findViewById(R.id.search_clear);
         errorItemContainer = (FrameLayout) getView().findViewById(R.id.fl_error_item);
     }
@@ -140,7 +137,7 @@ public class EaseConversationListFragment extends EaseBaseFragment{
         
         @Override
         public void onDisconnected(int error) {
-            if (error == EMError.USER_REMOVED || error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
+            if (error == EMError.USER_REMOVED || error == EMError.USER_LOGIN_ANOTHER_DEVICE || error == EMError.SERVER_SERVICE_RESTRICTED) {
                 isConflict = true;
             } else {
                handler.sendEmptyMessage(0);
@@ -178,14 +175,14 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     };
     
     /**
-     * 连接到服务器
+     * connected to server
      */
     protected void onConnectionConnected(){
         errorItemContainer.setVisibility(View.GONE);
     }
     
     /**
-     * 连接断开
+     * disconnected with server
      */
     protected void onConnectionDisconnected(){
         errorItemContainer.setVisibility(View.VISIBLE);
@@ -193,7 +190,7 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     
 
     /**
-     * 刷新页面
+     * refresh ui
      */
     public void refresh() {
     	if(!handler.hasMessages(MSG_REFRESH)){
@@ -202,28 +199,22 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     }
     
     /**
-     * 获取会话列表
+     * load conversation list
      * 
-     * @param context
      * @return
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         +    */
     protected List<EMConversation> loadConversationList(){
-        // 获取所有会话，包括陌生人
+        // get all conversations
         Map<String, EMConversation> conversations = EMClient.getInstance().chatManager().getAllConversations();
-        // 过滤掉messages size为0的conversation
-        /**
-         * 如果在排序过程中有新消息收到，lastMsgTime会发生变化
-         * 影响排序过程，Collection.sort会产生异常
-         * 保证Conversation在Sort过程中最后一条消息的时间不变 
-         * 避免并发问题
-         */
         List<Pair<Long, EMConversation>> sortList = new ArrayList<Pair<Long, EMConversation>>();
+        /**
+         * lastMsgTime will change if there is new message during sorting
+         * so use synchronized to make sure timestamp of last message won't change.
+         */
         synchronized (conversations) {
             for (EMConversation conversation : conversations.values()) {
                 if (conversation.getAllMessages().size() != 0) {
-                    //if(conversation.getType() != EMConversationType.ChatRoom){
-                        sortList.add(new Pair<Long, EMConversation>(conversation.getLastMessage().getMsgTime(), conversation));
-                    //}
+                    sortList.add(new Pair<Long, EMConversation>(conversation.getLastMessage().getMsgTime(), conversation));
                 }
             }
         }
@@ -241,18 +232,18 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     }
 
     /**
-     * 根据最后一条消息的时间排序
+     * sort conversations according time stamp of last message
      * 
-     * @param usernames
+     * @param conversationList
      */
     private void sortConversationByLastChatTime(List<Pair<Long, EMConversation>> conversationList) {
         Collections.sort(conversationList, new Comparator<Pair<Long, EMConversation>>() {
             @Override
             public int compare(final Pair<Long, EMConversation> con1, final Pair<Long, EMConversation> con2) {
 
-                if (con1.first == con2.first) {
+                if (con1.first.equals(con2.first)) {
                     return 0;
-                } else if (con2.first > con1.first) {
+                } else if (con2.first.longValue() > con1.first.longValue()) {
                     return 1;
                 } else {
                     return -1;
@@ -303,14 +294,14 @@ public class EaseConversationListFragment extends EaseBaseFragment{
     
     public interface EaseConversationListItemClickListener {
         /**
-         * 会话listview item点击事件
-         * @param conversation 被点击item所对应的会话
+         * click event for conversation list
+         * @param conversation -- clicked item
          */
         void onListItemClicked(EMConversation conversation);
     }
     
     /**
-     * 设置listview item点击事件
+     * set conversation list item click listener
      * @param listItemClickListener
      */
     public void setConversationListItemClickListener(EaseConversationListItemClickListener listItemClickListener){

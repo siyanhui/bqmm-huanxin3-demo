@@ -25,7 +25,7 @@ public class EaseChatRowLocation extends EaseChatRow{
     }
 
     @Override
-    protected void onInflatView() {
+    protected void onInflateView() {
         inflater.inflate(message.direct() == EMMessage.Direct.RECEIVE ?
                 R.layout.ease_row_received_location : R.layout.ease_row_sent_location, this);
     }
@@ -41,25 +41,23 @@ public class EaseChatRowLocation extends EaseChatRow{
 		locBody = (EMLocationMessageBody) message.getBody();
 		locationView.setText(locBody.getAddress());
 
-		// deal with send message
+		// handle sending message
 		if (message.direct() == EMMessage.Direct.SEND) {
 		    setMessageSendCallback();
             switch (message.status()) {
             case CREATE: 
                 progressBar.setVisibility(View.GONE);
                 statusView.setVisibility(View.VISIBLE);
-                // 发送消息
-//                sendMsgInBackground(message);
                 break;
-            case SUCCESS: // 发送成功
+            case SUCCESS:
                 progressBar.setVisibility(View.GONE);
                 statusView.setVisibility(View.GONE);
                 break;
-            case FAIL: // 发送失败
+            case FAIL:
                 progressBar.setVisibility(View.GONE);
                 statusView.setVisibility(View.VISIBLE);
                 break;
-            case INPROGRESS: // 发送中
+            case INPROGRESS:
                 progressBar.setVisibility(View.VISIBLE);
                 statusView.setVisibility(View.GONE);
                 break;
@@ -92,7 +90,7 @@ public class EaseChatRowLocation extends EaseChatRow{
     }
     
     /*
-	 * 点击地图消息listener
+	 * listener for map clicked
 	 */
 	protected class MapClickListener implements View.OnClickListener {
 
@@ -109,8 +107,6 @@ public class EaseChatRowLocation extends EaseChatRow{
 		public void onClick(View v) {
 		   
 		}
-
 	}
-
 
 }

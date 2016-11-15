@@ -28,6 +28,7 @@ import com.hyphenate.easeui.ui.EaseContactListFragment;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.NetUtils;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.view.ContextMenu;
@@ -42,7 +43,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 /**
- * 联系人列表页
+ * contact list
  * 
  */
 public class ContactListFragment extends EaseContactListFragment {
@@ -55,22 +56,22 @@ public class ContactListFragment extends EaseContactListFragment {
     private ContactItemView applicationItem;
     private InviteMessgeDao inviteMessgeDao;
 
+    @SuppressLint("InflateParams")
     @Override
     protected void initView() {
         super.initView();
-        View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.em_contacts_header, null);
+        @SuppressLint("InflateParams") View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.em_contacts_header, null);
         HeaderItemClickListener clickListener = new HeaderItemClickListener();
         applicationItem = (ContactItemView) headerView.findViewById(R.id.application_item);
         applicationItem.setOnClickListener(clickListener);
         headerView.findViewById(R.id.group_item).setOnClickListener(clickListener);
         headerView.findViewById(R.id.chat_room_item).setOnClickListener(clickListener);
         headerView.findViewById(R.id.robot_item).setOnClickListener(clickListener);
-        //添加headerview
         listView.addHeaderView(headerView);
-        //添加正在加载数据提示的loading view
+        //add loading view
         loadingView = LayoutInflater.from(getActivity()).inflate(R.layout.em_layout_loading_data, null);
         contentContainer.addView(loadingView);
-        //注册上下文菜单
+
         registerForContextMenu(listView);
     }
     
@@ -78,6 +79,7 @@ public class ContactListFragment extends EaseContactListFragment {
     public void refresh() {
         Map<String, EaseUser> m = DemoHelper.getInstance().getContactList();
         if (m instanceof Hashtable<?, ?>) {
+            //noinspection unchecked
             m = (Map<String, EaseUser>) ((Hashtable<String, EaseUser>)m).clone();
         }
         setContactsMap(m);
@@ -116,9 +118,12 @@ public class ContactListFragment extends EaseContactListFragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String username = ((EaseUser)listView.getItemAtPosition(position)).getUsername();
-                // demo中直接进入聊天页面，实际一般是进入用户详情页
-                startActivity(new Intent(getActivity(), ChatActivity.class).putExtra("userId", username));
+                EaseUser user = (EaseUser)listView.getItemAtPosition(position);
+                if (user != null) {
+                    String username = user.getUsername();
+                    // demo中直接进入聊天页面，实际一般是进入用户详情页
+                    startActivity(new Intent(getActivity(), ChatActivity.class).putExtra("userId", username));
+                }
             }
         });
 
@@ -209,9 +214,9 @@ public class ContactListFragment extends EaseContactListFragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.delete_contact) {
 			try {
-                // 删除此联系人
+                // delete contact
                 deleteContact(toBeProcessUser);
-                // 删除相关的邀请消息
+                // remove invitation message
                 InviteMessgeDao dao = new InviteMessgeDao(getActivity());
                 dao.deleteMessage(toBeProcessUser.getUsername());
             } catch (Exception e) {
@@ -227,7 +232,7 @@ public class ContactListFragment extends EaseContactListFragment {
 
 
 	/**
-	 * 删除联系人
+	 * delete contact
 	 * 
 	 * @param toDeleteUser
 	 */
@@ -242,7 +247,7 @@ public class ContactListFragment extends EaseContactListFragment {
 			public void run() {
 				try {
 					EMClient.getInstance().contactManager().deleteContact(tobeDeleteUser.getUsername());
-					// 删除db和内存中此用户的数据
+					// remove user from memory and database
 					UserDao dao = new UserDao(getActivity());
 					dao.deleteContact(tobeDeleteUser.getUsername());
 					DemoHelper.getInstance().getContactList().remove(tobeDeleteUser.getUsername());
@@ -258,7 +263,7 @@ public class ContactListFragment extends EaseContactListFragment {
 					getActivity().runOnUiThread(new Runnable() {
 						public void run() {
 							pd.dismiss();
-							Toast.makeText(getActivity(), st2 + e.getMessage(), 1).show();
+							Toast.makeText(getActivity(), st2 + e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 					});
 
@@ -284,7 +289,7 @@ public class ContactListFragment extends EaseContactListFragment {
                                 refresh();
                             }else{
                                 String s1 = getResources().getString(R.string.get_failed_please_check);
-                                Toast.makeText(getActivity(), s1, 1).show();
+                                Toast.makeText(getActivity(), s1, Toast.LENGTH_LONG).show();
                                 loadingView.setVisibility(View.GONE);
                             }
                         }
@@ -308,8 +313,8 @@ public class ContactListFragment extends EaseContactListFragment {
             });
         }
         
-    };
-    
+    }
+
     class ContactInfoSyncListener implements DataSyncListener{
 
         @Override

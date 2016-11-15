@@ -14,16 +14,6 @@
 
 package com.hyphenate.chatuidemo.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hyphenate.EMChatRoomChangeListener;
-import com.hyphenate.chat.EMChatRoom;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMCursorResult;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.exceptions.HyphenateException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +22,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -48,9 +37,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hyphenate.EMChatRoomChangeListener;
+import com.hyphenate.chat.EMChatRoom;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMPageResult;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.exceptions.HyphenateException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class PublicChatRoomsActivity extends BaseActivity {
 	private ProgressBar pb;
-	private TextView title;
 	private ListView listView;
 	private ChatRoomAdapter adapter;
 	
@@ -59,33 +57,33 @@ public class PublicChatRoomsActivity extends BaseActivity {
 	private boolean isFirstLoading = true;
 	private boolean hasMoreData = true;
 	private String cursor;
-	private final int pagesize = 50;
+	private int pagenum = 0;
+	private final int pagesize = 20;
+	private int pageCount = -1;
     private LinearLayout footLoadingLayout;
     private ProgressBar footLoadingPB;
     private TextView footLoadingText;
     private EditText etSearch;
     private ImageButton ibClean;
     private List<EMChatRoom> rooms;
-    private InputMethodManager inputMethodManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.em_activity_public_groups);
 
-		// 搜索框
 		etSearch = (EditText)findViewById(R.id.query);
 		ibClean = (ImageButton)findViewById(R.id.search_clear);
 		etSearch.setHint(R.string.search);
-		inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		pb = (ProgressBar) findViewById(R.id.progressBar);
 		listView = (ListView) findViewById(R.id.list);
-		title = (TextView)findViewById(R.id.tv_title);
+		TextView title = (TextView) findViewById(R.id.tv_title);
 		title.setText(getResources().getString(R.string.chat_room));
 		chatRoomList = new ArrayList<EMChatRoom>();
 		rooms = new ArrayList<EMChatRoom>();
 		
-		View footView = getLayoutInflater().inflate(R.layout.em_listview_footer_view, null);
+		View footView = getLayoutInflater().inflate(R.layout.em_listview_footer_view, listView, false);
         footLoadingLayout = (LinearLayout) footView.findViewById(R.id.loading_layout);
         footLoadingPB = (ProgressBar)footView.findViewById(R.id.loading_bar);
         footLoadingText = (TextView) footView.findViewById(R.id.loading_text);
@@ -124,8 +122,7 @@ public class PublicChatRoomsActivity extends BaseActivity {
 				hideSoftKeyboard();
 			}
 		});
-        
-        //获取及显示数据
+
         loadAndShowData();
         
         EMClient.getInstance().chatroomManager().addChatRoomChangeListener(new EMChatRoomChangeListener(){
@@ -163,8 +160,7 @@ public class PublicChatRoomsActivity extends BaseActivity {
             }
             
         });
-        
-        //设置item点击事件
+
         listView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -181,7 +177,7 @@ public class PublicChatRoomsActivity extends BaseActivity {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 if(scrollState == OnScrollListener.SCROLL_STATE_IDLE){
-                    if(cursor != null){
+                    if(pageCount != 0){
                         int lasPos = view.getLastVisiblePosition();
                         if(hasMoreData && !isLoading && lasPos == listView.getCount()-1){
                             loadAndShowData();
@@ -204,23 +200,18 @@ public class PublicChatRoomsActivity extends BaseActivity {
             public void run() {
                 try {
                     isLoading = true;
-                    final EMCursorResult<EMChatRoom> result = EMClient.getInstance().chatroomManager().fetchPublicChatRoomsFromServer(pagesize, cursor);
-                    //获取group list
+                    pagenum += 1;
+                    final EMPageResult<EMChatRoom> result = EMClient.getInstance().chatroomManager().fetchPublicChatRoomsFromServer(pagenum, pagesize);
+                    //get chat room list
                     final List<EMChatRoom> chatRooms = result.getData();
+                    pageCount = result.getPageCount();
                     runOnUiThread(new Runnable() {
 
                         public void run() {
                             chatRoomList.addAll(chatRooms);
-                            if(chatRooms.size() != 0){
-                                //获取cursor
-                                cursor = result.getCursor();
-//                                if(chatRooms.size() == pagesize)
-//                                    footLoadingLayout.setVisibility(View.VISIBLE);
-                            }
                             if(isFirstLoading){
                                 pb.setVisibility(View.INVISIBLE);
                                 isFirstLoading = false;
-                                //设置adapter
                                 adapter = new ChatRoomAdapter(PublicChatRoomsActivity.this, 1, chatRoomList);
                                 listView.setAdapter(adapter);
                                 rooms.addAll(chatRooms);
@@ -243,13 +234,17 @@ public class PublicChatRoomsActivity extends BaseActivity {
                             isLoading = false;
                             pb.setVisibility(View.INVISIBLE);
                             footLoadingLayout.setVisibility(View.GONE);
-                            Toast.makeText(PublicChatRoomsActivity.this, getResources().getString(R.string.failed_to_load_data), 0).show();
+                            Toast.makeText(PublicChatRoomsActivity.this, getResources().getString(R.string.failed_to_load_data), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
             }
         }).start();
 	}
+
+	public void search(View view) {
+	}
+
 	/**
 	 * adapter
 	 *
@@ -267,7 +262,7 @@ public class PublicChatRoomsActivity extends BaseActivity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.em_row_group, null);
+				convertView = inflater.inflate(R.layout.em_row_group, parent, false);
 			}
 
 			((TextView) convertView.findViewById(R.id.name)).setText(getItem(position).getName());

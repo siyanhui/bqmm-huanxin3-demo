@@ -1,6 +1,15 @@
 package com.hyphenate.easeui.widget.chatrow;
 
-import java.util.Date;
+import android.app.Activity;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.EMError;
@@ -14,16 +23,7 @@ import com.hyphenate.easeui.widget.EaseChatMessageList;
 import com.hyphenate.easeui.widget.EaseChatMessageList.MessageListItemClickListener;
 import com.hyphenate.util.DateUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.Date;
 
 public abstract class EaseChatRow extends LinearLayout {
     protected static final String TAG = EaseChatRow.class.getSimpleName();
@@ -65,7 +65,7 @@ public abstract class EaseChatRow extends LinearLayout {
     }
 
     private void initView() {
-        onInflatView();
+        onInflateView();
         timeStampView = (TextView) findViewById(R.id.timestamp);
         userAvatarView = (ImageView) findViewById(R.id.iv_userhead);
         bubbleLayout = findViewById(R.id.bubble);
@@ -80,7 +80,7 @@ public abstract class EaseChatRow extends LinearLayout {
     }
 
     /**
-     * 根据当前message和position设置控件属性等
+     * set property according message and postion
      * 
      * @param message
      * @param position
@@ -97,14 +97,14 @@ public abstract class EaseChatRow extends LinearLayout {
     }
 
     private void setUpBaseView() {
-        // 设置用户昵称头像，bubble背景等
+    	// set nickname, avatar and background of bubble
         TextView timestamp = (TextView) findViewById(R.id.timestamp);
         if (timestamp != null) {
             if (position == 0) {
                 timestamp.setText(DateUtils.getTimestampString(new Date(message.getMsgTime())));
                 timestamp.setVisibility(View.VISIBLE);
             } else {
-                // 两条消息时间离得如果稍长，显示时间
+            	// show time stamp if interval with last message is > 30 seconds
                 EMMessage prevMessage = (EMMessage) adapter.getItem(position - 1);
                 if (prevMessage != null && DateUtils.isCloseEnough(message.getMsgTime(), prevMessage.getMsgTime())) {
                     timestamp.setVisibility(View.GONE);
@@ -114,11 +114,9 @@ public abstract class EaseChatRow extends LinearLayout {
                 }
             }
         }
-        //设置头像和nick
+        //set nickname and avatar
         if(message.direct() == Direct.SEND){
             EaseUserUtils.setUserAvatar(context, EMClient.getInstance().getCurrentUser(), userAvatarView);
-            //发送方不显示nick
-//            UserUtils.setUserNick(EMChatManager.getInstance().getCurrentUser(), usernickView);
         }else{
             EaseUserUtils.setUserAvatar(context, message.getFrom(), userAvatarView);
             EaseUserUtils.setUserNick(message.getFrom(), usernickView);
@@ -156,21 +154,19 @@ public abstract class EaseChatRow extends LinearLayout {
                     usernickView.setVisibility(View.GONE);
             }
             if (message.direct() == Direct.SEND) {
-                if (((EaseMessageAdapter) adapter).getMyBubbleBg() != null)
+                if (((EaseMessageAdapter) adapter).getMyBubbleBg() != null) {
                     bubbleLayout.setBackgroundDrawable(((EaseMessageAdapter) adapter).getMyBubbleBg());
-                // else
-                // bubbleLayout.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.chatto_bg));
+                }
             } else if (message.direct() == Direct.RECEIVE) {
-                if (((EaseMessageAdapter) adapter).getOtherBuddleBg() != null)
+                if (((EaseMessageAdapter) adapter).getOtherBuddleBg() != null) {
                     bubbleLayout.setBackgroundDrawable(((EaseMessageAdapter) adapter).getOtherBuddleBg());
-//                else
-//                    bubbleLayout.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.ease_chatfrom_bg));
+                }
             }
         }
     }
 
     /**
-     * 设置消息发送callback
+     * set callback for sending message
      */
     protected void setMessageSendCallback(){
         if(messageSendCallback == null){
@@ -203,7 +199,7 @@ public abstract class EaseChatRow extends LinearLayout {
     }
     
     /**
-     * 设置消息接收callback
+     * set callback for receiving message
      */
     protected void setMessageReceiveCallback(){
         if(messageReceiveCallback == null){
@@ -243,7 +239,7 @@ public abstract class EaseChatRow extends LinearLayout {
                 public void onClick(View v) {
                     if (itemClickListener != null){
                         if(!itemClickListener.onBubbleClick(message)){
-                            //如果listener返回false不处理这个事件，执行lib默认的处理
+                        	// if listener return false, we call default handling
                             onBubbleClick();
                         }
                     }
@@ -313,11 +309,11 @@ public abstract class EaseChatRow extends LinearLayout {
                 if (message.status() == EMMessage.Status.FAIL) {
 
                     if (message.getError() == EMError.MESSAGE_INCLUDE_ILLEGAL_CONTENT) {
-                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.error_send_invalid_content), 0).show();
+                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.error_send_invalid_content), Toast.LENGTH_SHORT).show();
                     } else if (message.getError() == EMError.GROUP_NOT_JOINED) {
-                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.error_send_not_in_the_group), 0).show();
+                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.error_send_not_in_the_group), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.connect_failuer_toast), 0).show();
+                        Toast.makeText(activity,activity.getString(R.string.send_fail) + activity.getString(R.string.connect_failuer_toast), Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -327,28 +323,26 @@ public abstract class EaseChatRow extends LinearLayout {
 
     }
 
-    /**
-     * 填充layout
-     */
-    protected abstract void onInflatView();
+    protected abstract void onInflateView();
 
     /**
-     * 查找chatrow里的控件
+     * find view by id
      */
     protected abstract void onFindViewById();
 
     /**
-     * 消息状态改变，刷新listview
+     * refresh list view when message status change
      */
     protected abstract void onUpdateView();
 
     /**
-     * 设置更新控件属性
+     * setup view
+     * 
      */
     protected abstract void onSetUpView();
     
     /**
-     * 聊天气泡被点击事件
+     * on bubble clicked
      */
     protected abstract void onBubbleClick();
 

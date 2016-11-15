@@ -50,7 +50,7 @@
         <item name="android:layout_height">62dp</item>
         <item name="android:background">@color/money_white</item>
         <item name="android:gravity">top</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:padding">14dp</item>
     </style>
 
@@ -67,7 +67,7 @@
         <item name="android:layout_marginLeft">15dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:textColor">@color/money_red_light</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="BindBankCardRLayoutStyle">
@@ -121,6 +121,19 @@
         <item name="android:gravity">center_vertical|right</item>
         <item name="android:paddingLeft">15dp</item>
         <item name="android:paddingRight">15dp</item>
+        <item name="android:background">@color/background_white</item>
+        <item name="android:drawableRight">@drawable/rp_arrow_forward</item>
+        <item name="android:drawablePadding">10dp</item>
+    </style>
+
+    <style name="ChangeLeftTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">47dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:background">@color/background_white</item>
         <item name="android:drawableRight">@drawable/rp_arrow_forward</item>
         <item name="android:drawablePadding">10dp</item>
@@ -203,24 +216,9 @@
         <item name="android:textSize">@dimen/font36px</item>
     </style>
 
-    <style name="EMDialogStyle">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@style/dialog_animation</item>
-        <item name="android:backgroundDimEnabled">true</item>
-    </style>
-
-    <style name="dialog_animation" parent="@android:style/Animation.Dialog">
-        <item name="android:windowEnterAnimation">@anim/rp_fade_in</item>
-        <item name="android:windowExitAnimation">@anim/rp_fade_out</item>
-    </style>
-
     <style name="LoadingProgressStyle" parent="@android:style/Widget.ProgressBar">
-        <item name="android:indeterminateDrawable">@anim/rp_progress_loading</item>
+        <item name="android:indeterminateDrawable">@drawable/rp_loading_anim</item>
+        <item name="android:indeterminateBehavior">repeat</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:layout_width">@dimen/size84px</item>
         <item name="android:layout_height">@dimen/size84px</item>
@@ -230,8 +228,6 @@
     <style name="DialogPayTypeStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerInParent">true</item>
-        <item name="android:layout_marginLeft">@dimen/size24px</item>
         <item name="android:textColor">@color/text_black</item>
         <item name="android:textSize">@dimen/font45px</item>
     </style>
@@ -318,8 +314,5 @@
         <item name="android:layout_marginLeft">@dimen/size45px</item>
     </style>
 
-    <style name="ChooseRecordStyle" parent="android:Animation">
-        <item name="android:windowEnterAnimation">@anim/rp_top_in</item>
-        <item name="android:windowExitAnimation">@anim/rp_top_out</item>
-    </style>
+
 </resources>

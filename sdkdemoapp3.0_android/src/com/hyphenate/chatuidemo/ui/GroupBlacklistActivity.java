@@ -1,12 +1,5 @@
 package com.hyphenate.chatuidemo.ui;
 
-import java.util.Collections;
-import java.util.List;
-
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.exceptions.HyphenateException;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -20,6 +13,13 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.exceptions.HyphenateException;
+
+import java.util.Collections;
+import java.util.List;
 
 public class GroupBlacklistActivity extends BaseActivity {
 	private ListView listView;
@@ -36,7 +36,7 @@ public class GroupBlacklistActivity extends BaseActivity {
 		listView = (ListView) findViewById(R.id.list);
 
 		groupId = getIntent().getStringExtra("groupId");
-		// 注册上下文菜单
+		// register context menu
 		registerForContextMenu(listView);
 		final String st1 = getResources().getString(R.string.get_failed_please_check);
 		new Thread(new Runnable() {
@@ -57,7 +57,7 @@ public class GroupBlacklistActivity extends BaseActivity {
 				} catch (HyphenateException e) {
 					runOnUiThread(new Runnable() {
 						public void run() {
-							Toast.makeText(getApplicationContext(), st1, 1).show();
+							Toast.makeText(getApplicationContext(), st1, Toast.LENGTH_LONG).show();
 							progressBar.setVisibility(View.INVISIBLE);
 						}
 					});
@@ -77,7 +77,7 @@ public class GroupBlacklistActivity extends BaseActivity {
 	public boolean onContextItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.remove) {
 			final String tobeRemoveUser = adapter.getItem(((AdapterContextMenuInfo) item.getMenuInfo()).position);
-			// 移出黑名单
+			// move out of blacklist
 			removeOutBlacklist(tobeRemoveUser);
 			return true;
 		}
@@ -85,26 +85,29 @@ public class GroupBlacklistActivity extends BaseActivity {
 	}
 	
 	/**
-	 * 移出黑民单
+	 * move out of blacklist
 	 * 
 	 * @param tobeRemoveUser
 	 */
 	void removeOutBlacklist(final String tobeRemoveUser) {
 		final String st2 = getResources().getString(R.string.Removed_from_the_failure);
 		try {
-			// 移出黑民单
 		    EMClient.getInstance().groupManager().unblockUser(groupId, tobeRemoveUser);
 			adapter.remove(tobeRemoveUser);
 		} catch (HyphenateException e) {
 			e.printStackTrace();
 			runOnUiThread(new Runnable() {
 				public void run() {
-					Toast.makeText(getApplicationContext(), st2, 0).show();
+					Toast.makeText(getApplicationContext(), st2, Toast.LENGTH_SHORT).show();
 				}
 			});
 		}
 	}
-	
+
+	public void back(View view) {
+        finish();
+	}
+
 	/**
 	 * adapter
 	 * 

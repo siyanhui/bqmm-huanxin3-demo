@@ -13,32 +13,7 @@
  */
 package com.hyphenate.chatuidemo.ui;
 
-import java.util.List;
-import java.util.List;
-
-import com.easemob.redpacketui.RedPacketConstant;
-import com.easemob.redpacketui.utils.RedPacketUtil;
-import com.hyphenate.EMCallBack;
-import com.hyphenate.EMContactListener;
-import com.hyphenate.EMMessageListener;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMCmdMessageBody;
-import com.hyphenate.chat.EMConversation;
-import com.hyphenate.chat.EMConversation.EMConversationType;
-import com.hyphenate.chat.EMMessage;
-import com.hyphenate.chatuidemo.Constant;
-import com.hyphenate.chatuidemo.DemoHelper;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.chatuidemo.db.InviteMessgeDao;
-import com.hyphenate.chatuidemo.db.UserDao;
-import com.hyphenate.chatuidemo.domain.InviteMessage;
-import com.hyphenate.chatuidemo.runtimepermissions.PermissionsManager;
-import com.hyphenate.chatuidemo.runtimepermissions.PermissionsResultAction;
-import com.hyphenate.easeui.utils.EaseCommonUtils;
-import com.hyphenate.util.EMLog;
-import com.umeng.analytics.MobclickAgent;
-import com.umeng.update.UmengUpdateAgent;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -53,39 +28,58 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easemob.redpacketsdk.constant.RPConstant;
+import com.easemob.redpacketui.utils.RedPacketUtil;
+import com.hyphenate.EMCallBack;
+import com.hyphenate.EMContactListener;
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCmdMessageBody;
+import com.hyphenate.chat.EMConversation;
+import com.hyphenate.chat.EMConversation.EMConversationType;
+import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chatuidemo.Constant;
+import com.hyphenate.chatuidemo.DemoHelper;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.chatuidemo.db.InviteMessgeDao;
+import com.hyphenate.chatuidemo.db.UserDao;
+import com.hyphenate.chatuidemo.runtimepermissions.PermissionsManager;
+import com.hyphenate.chatuidemo.runtimepermissions.PermissionsResultAction;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
+import com.hyphenate.util.EMLog;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.update.UmengUpdateAgent;
+
+import java.util.List;
+
+@SuppressLint("NewApi")
 public class MainActivity extends BaseActivity {
 
 	protected static final String TAG = "MainActivity";
-	// 未读消息textview
+	// textview for unread message count
 	private TextView unreadLabel;
-	// 未读通讯录textview
+	// textview for unread event message
 	private TextView unreadAddressLable;
 
 	private Button[] mTabs;
 	private ContactListFragment contactListFragment;
-	// private conversationListFragment conversationListFragment;
-//	private ChatAllHistoryFragment conversationListFragment;
-	private SettingsFragment settingFragment;
 	private Fragment[] fragments;
 	private int index;
-	// 当前fragment的index
 	private int currentTabIndex;
-	// 账号在别处登录
+	// user logged into another device
 	public boolean isConflict = false;
-	// 账号被移除
+	// user account was removed
 	private boolean isCurrentAccountRemoved = false;
 	
 
 	/**
-	 * 检查当前用户是否被删除
+	 * check if current user account was remove
 	 */
 	public boolean getCurrentAccountRemoved() {
 		return isCurrentAccountRemoved;
@@ -101,28 +95,24 @@ public class MainActivity extends BaseActivity {
 		    if (!pm.isIgnoringBatteryOptimizations(packageName)) {
 		        Intent intent = new Intent();
 		        intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-		        //intent.setAction(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
 		        intent.setData(Uri.parse("package:" + packageName));
 		        startActivity(intent);
 		    }
 		}
 		
+		//make sure activity will not in background if user is logged into another device or removed
 		if (savedInstanceState != null && savedInstanceState.getBoolean(Constant.ACCOUNT_REMOVED, false)) {
-			// 防止被移除后，没点确定按钮然后按了home键，长期在后台又进app导致的crash
-			// 三个fragment里加的判断同理
 		    DemoHelper.getInstance().logout(false,null);
 			finish();
 			startActivity(new Intent(this, LoginActivity.class));
 			return;
 		} else if (savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false)) {
-			// 防止被T后，没点确定按钮然后按了home键，长期在后台又进app导致的crash
-			// 三个fragment里加的判断同理
 			finish();
 			startActivity(new Intent(this, LoginActivity.class));
 			return;
 		}
 		setContentView(R.layout.em_activity_main);
-		//6.0运行时权限处理，target api设成23时，demo这里做的比较简单，直接请求所有需要的运行时权限
+		// runtime permission for android 6.0, just require all permissions here for simple
 		requestPermissions();
 
 		initView();
@@ -132,29 +122,25 @@ public class MainActivity extends BaseActivity {
 		UmengUpdateAgent.setUpdateOnlyWifi(false);
 		UmengUpdateAgent.update(this);
 
-		if (getIntent().getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
-			showConflictDialog();
-		} else if (getIntent().getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
-			showAccountRemovedDialog();
-		}
+		showExceptionDialogFromIntent(getIntent());
 
 		inviteMessgeDao = new InviteMessgeDao(this);
-		userDao = new UserDao(this);
+		UserDao userDao = new UserDao(this);
 		conversationListFragment = new ConversationListFragment();
 		contactListFragment = new ContactListFragment();
-		settingFragment = new SettingsFragment();
-		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment };
-		// 添加显示第一个fragment
+		SettingsFragment settingFragment = new SettingsFragment();
+		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment};
+
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, conversationListFragment)
 				.add(R.id.fragment_container, contactListFragment).hide(contactListFragment).show(conversationListFragment)
 				.commit();
-		
-		//注册local广播接收者，用于接收demohelper中发出的群组联系人的变动通知
+
+		//register broadcast receiver to receive the change of group from DemoHelper
 		registerBroadcastReceiver();
 		
 		
 		EMClient.getInstance().contactManager().setContactListener(new MyContactListener());
-		//内部测试方法，请忽略
+		//debug purpose only
         registerInternalDebugReceiver();
 	}
 
@@ -174,7 +160,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * 初始化组件
+	 * init views
 	 */
 	private void initView() {
 		unreadLabel = (TextView) findViewById(R.id.unread_msg_number);
@@ -183,12 +169,12 @@ public class MainActivity extends BaseActivity {
 		mTabs[0] = (Button) findViewById(R.id.btn_conversation);
 		mTabs[1] = (Button) findViewById(R.id.btn_address_list);
 		mTabs[2] = (Button) findViewById(R.id.btn_setting);
-		// 把第一个tab设为选中状态
+		// select first tab
 		mTabs[0].setSelected(true);
 	}
 
 	/**
-	 * button点击事件
+	 * on tab clicked
 	 * 
 	 * @param view
 	 */
@@ -213,7 +199,7 @@ public class MainActivity extends BaseActivity {
 			trx.show(fragments[index]).commit();
 		}
 		mTabs[currentTabIndex].setSelected(false);
-		// 把当前tab设为选中状态
+		// set current tab selected
 		mTabs[index].setSelected(true);
 		currentTabIndex = index;
 	}
@@ -222,7 +208,7 @@ public class MainActivity extends BaseActivity {
 		
 		@Override
 		public void onMessageReceived(List<EMMessage> messages) {
-			// 提示新消息
+			// notify new message
 		    for (EMMessage message : messages) {
 		        DemoHelper.getInstance().getNotifier().onNewMsg(message);
 		    }
@@ -231,13 +217,15 @@ public class MainActivity extends BaseActivity {
 		
 		@Override
 		public void onCmdMessageReceived(List<EMMessage> messages) {
+			//red packet code : 处理红包回执透传消息
 			for (EMMessage message : messages) {
 				EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
 				final String action = cmdMsgBody.action();//获取自定义action
-				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION) && message.getChatType() == EMMessage.ChatType.GroupChat) {
+				if (action.equals(RPConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
 					RedPacketUtil.receiveRedPacketAckMessage(message);
 				}
 			}
+			//end of red packet code
 			refreshUIWithMessage();
 		}
 		
@@ -256,10 +244,10 @@ public class MainActivity extends BaseActivity {
 	private void refreshUIWithMessage() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				// 刷新bottom bar消息未读数
+				// refresh unread count
 				updateUnreadLabel();
 				if (currentTabIndex == 0) {
-					// 当前页面如果为聊天历史页面，刷新此页面
+					// refresh conversation list
 					if (conversationListFragment != null) {
 						conversationListFragment.refresh();
 					}
@@ -278,7 +266,7 @@ public class MainActivity extends BaseActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constant.ACTION_CONTACT_CHANAGED);
         intentFilter.addAction(Constant.ACTION_GROUP_CHANAGED);
-		intentFilter.addAction(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION);
+		intentFilter.addAction(RPConstant.REFRESH_GROUP_RED_PACKET_ACTION);
         broadcastReceiver = new BroadcastReceiver() {
             
             @Override
@@ -286,7 +274,7 @@ public class MainActivity extends BaseActivity {
                 updateUnreadLabel();
                 updateUnreadAddressLable();
                 if (currentTabIndex == 0) {
-                    // 当前页面如果为聊天历史页面，刷新此页面
+                    // refresh conversation list
                     if (conversationListFragment != null) {
                         conversationListFragment.refresh();
                     }
@@ -301,12 +289,14 @@ public class MainActivity extends BaseActivity {
                         GroupsActivity.instance.onResume();
                     }
                 }
-				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)){
+				//red packet code : 处理红包回执透传消息
+				if (action.equals(RPConstant.REFRESH_GROUP_RED_PACKET_ACTION)){
 					if (conversationListFragment != null){
 						conversationListFragment.refresh();
 					}
 				}
-            }
+				//end of red packet code
+			}
         };
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
@@ -344,9 +334,10 @@ public class MainActivity extends BaseActivity {
 	protected void onDestroy() {
 		super.onDestroy();		
 		
-		if (conflictBuilder != null) {
-			conflictBuilder.create().dismiss();
-			conflictBuilder = null;
+		if (exceptionBuilder != null) {
+		    exceptionBuilder.create().dismiss();
+		    exceptionBuilder = null;
+		    isExceptionDialogShow = false;
 		}
 		unregisterBroadcastReceiver();
 
@@ -358,7 +349,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * 刷新未读消息数
+	 * update unread message count
 	 */
 	public void updateUnreadLabel() {
 		int count = getUnreadMsgCountTotal();
@@ -371,14 +362,13 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * 刷新申请与通知消息数
+	 * update the total unread count 
 	 */
 	public void updateUnreadAddressLable() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int count = getUnreadAddressCountTotal();
 				if (count > 0) {
-//					unreadAddressLable.setText(String.valueOf(count));
 					unreadAddressLable.setVisibility(View.VISIBLE);
 				} else {
 					unreadAddressLable.setVisibility(View.INVISIBLE);
@@ -389,7 +379,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * 获取未读申请与通知消息
+	 * get unread event notification count, including application, accepted, etc
 	 * 
 	 * @return
 	 */
@@ -400,7 +390,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * 获取未读消息数
+	 * get unread message count
 	 * 
 	 * @return
 	 */
@@ -416,40 +406,6 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private InviteMessgeDao inviteMessgeDao;
-	private UserDao userDao;
-
-
-
-
-	/**
-	 * 保存提示新消息
-	 * 
-	 * @param msg
-	 */
-	private void notifyNewIviteMessage(InviteMessage msg) {
-		saveInviteMsg(msg);
-		// 提示有新消息
-		DemoHelper.getInstance().getNotifier().viberateAndPlayTone(null);
-
-		// 刷新bottom bar消息未读数
-		updateUnreadAddressLable();
-		// 刷新好友页面ui
-		if (currentTabIndex == 1)
-			contactListFragment.refresh();
-	}
-
-	/**
-	 * 保存邀请等msg
-	 * 
-	 * @param msg
-	 */
-	private void saveInviteMsg(InviteMessage msg) {
-		// 保存msg
-		inviteMessgeDao.saveMessage(msg);
-		//保存未读数，这里没有精确计算
-		inviteMessgeDao.saveUnreadMessageCount(1);
-	}
-
 
 	@Override
 	protected void onResume() {
@@ -493,99 +449,78 @@ public class MainActivity extends BaseActivity {
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private android.app.AlertDialog.Builder conflictBuilder;
-	private android.app.AlertDialog.Builder accountRemovedBuilder;
-	private boolean isConflictDialogShow;
-	private boolean isAccountRemovedDialogShow;
+	private android.app.AlertDialog.Builder exceptionBuilder;
+	private boolean isExceptionDialogShow =  false;
     private BroadcastReceiver internalDebugReceiver;
     private ConversationListFragment conversationListFragment;
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager broadcastManager;
 
+    private int getExceptionMessageId(String exceptionType) {
+         if(exceptionType.equals(Constant.ACCOUNT_CONFLICT)) {
+             return R.string.connect_conflict;
+         } else if (exceptionType.equals(Constant.ACCOUNT_REMOVED)) {
+             return R.string.em_user_remove;
+         } else if (exceptionType.equals(Constant.ACCOUNT_FORBIDDEN)) {
+             return R.string.user_forbidden;
+         }
+         return R.string.Network_error;
+    }
 	/**
-	 * 显示帐号在别处登录dialog
+	 * show the dialog when user met some exception: such as login on another device, user removed or user forbidden
 	 */
-	private void showConflictDialog() {
-		isConflictDialogShow = true;
+	private void showExceptionDialog(String exceptionType) {
+	    isExceptionDialogShow = true;
 		DemoHelper.getInstance().logout(false,null);
 		String st = getResources().getString(R.string.Logoff_notification);
 		if (!MainActivity.this.isFinishing()) {
 			// clear up global variables
 			try {
-				if (conflictBuilder == null)
-					conflictBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
-				conflictBuilder.setTitle(st);
-				conflictBuilder.setMessage(R.string.connect_conflict);
-				conflictBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+				if (exceptionBuilder == null)
+				    exceptionBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
+				    exceptionBuilder.setTitle(st);
+				    exceptionBuilder.setMessage(getExceptionMessageId(exceptionType));	
+				    exceptionBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
-						conflictBuilder = null;
+						exceptionBuilder = null;
+						isExceptionDialogShow = false;
 						finish();
 						Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 						startActivity(intent);
 					}
 				});
-				conflictBuilder.setCancelable(false);
-				conflictBuilder.create().show();
+				exceptionBuilder.setCancelable(false);
+				exceptionBuilder.create().show();
 				isConflict = true;
 			} catch (Exception e) {
 				EMLog.e(TAG, "---------color conflictBuilder error" + e.getMessage());
 			}
-
 		}
-
 	}
 
-	/**
-	 * 帐号被移除的dialog
-	 */
-	private void showAccountRemovedDialog() {
-		isAccountRemovedDialogShow = true;
-		DemoHelper.getInstance().logout(false,null);
-		String st5 = getResources().getString(R.string.Remove_the_notification);
-		if (!MainActivity.this.isFinishing()) {
-			// clear up global variables
-			try {
-				if (accountRemovedBuilder == null)
-					accountRemovedBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
-				accountRemovedBuilder.setTitle(st5);
-				accountRemovedBuilder.setMessage(R.string.em_user_remove);
-				accountRemovedBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						accountRemovedBuilder = null;
-						finish();
-						startActivity(new Intent(MainActivity.this, LoginActivity.class));
-					}
-				});
-				accountRemovedBuilder.setCancelable(false);
-				accountRemovedBuilder.create().show();
-				isCurrentAccountRemoved = true;
-			} catch (Exception e) {
-				EMLog.e(TAG, "---------color userRemovedBuilder error" + e.getMessage());
-			}
-
-		}
-
+	private void showExceptionDialogFromIntent(Intent intent) {
+	    EMLog.e(TAG, "showExceptionDialogFromIntent");
+	    if (!isExceptionDialogShow && intent.getBooleanExtra(Constant.ACCOUNT_CONFLICT, false)) {
+            showExceptionDialog(Constant.ACCOUNT_CONFLICT);
+        } else if (!isExceptionDialogShow && intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false)) {
+            showExceptionDialog(Constant.ACCOUNT_REMOVED);
+        } else if (!isExceptionDialogShow && intent.getBooleanExtra(Constant.ACCOUNT_FORBIDDEN, false)) {
+            showExceptionDialog(Constant.ACCOUNT_FORBIDDEN);
+        }   
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		if (intent.getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
-			showConflictDialog();
-		} else if (intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
-			showAccountRemovedDialog();
-		}
+		showExceptionDialogFromIntent(intent);
 	}
 	
 	/**
-	 * 内部测试代码，开发者请忽略
+	 * debug purpose only, you can ignore this
 	 */
 	private void registerInternalDebugReceiver() {
 	    internalDebugReceiver = new BroadcastReceiver() {
@@ -598,10 +533,8 @@ public class MainActivity extends BaseActivity {
                     public void onSuccess() {
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                // 重新显示登陆页面
                                 finish();
                                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                                
                             }
                         });
                     }
@@ -618,13 +551,8 @@ public class MainActivity extends BaseActivity {
         registerReceiver(internalDebugReceiver, filter);
     }
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		//getMenuInflater().inflate(R.menu.context_tab_contact, menu);
-	}
-
-	@Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+	@Override 
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
 			@NonNull int[] grantResults) {
 		PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
 	}

@@ -13,13 +13,6 @@
  */
 package com.hyphenate.chatuidemo.ui;
 
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMGroupManager.EMGroupOptions;
-import com.hyphenate.chat.EMGroupManager.EMGroupStyle;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.easeui.widget.EaseAlertDialog;
-import com.hyphenate.exceptions.HyphenateException;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,9 +22,15 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMGroupManager.EMGroupOptions;
+import com.hyphenate.chat.EMGroupManager.EMGroupStyle;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.easeui.widget.EaseAlertDialog;
+import com.hyphenate.exceptions.HyphenateException;
 
 public class NewGroupActivity extends BaseActivity {
 	private EditText groupNameEditText;
@@ -72,7 +71,7 @@ public class NewGroupActivity extends BaseActivity {
 		if (TextUtils.isEmpty(name)) {
 		    new EaseAlertDialog(this, R.string.Group_name_cannot_be_empty).show();
 		} else {
-			// 进通讯录选人
+			// select from contact list
 			startActivityForResult(new Intent(this, GroupPickContactsActivity.class).putExtra("groupName", name), 0);
 		}
 	}
@@ -83,7 +82,7 @@ public class NewGroupActivity extends BaseActivity {
 		String st1 = getResources().getString(R.string.Is_to_create_a_group_chat);
 		final String st2 = getResources().getString(R.string.Failed_to_create_groups);
 		if (resultCode == RESULT_OK) {
-			//新建群组
+			//new group
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setMessage(st1);
 			progressDialog.setCanceledOnTouchOutside(false);
@@ -92,7 +91,6 @@ public class NewGroupActivity extends BaseActivity {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					// 调用sdk创建群组方法
 					final String groupName = groupNameEditText.getText().toString().trim();
 					String desc = introductionEditText.getText().toString();
 					String[] members = data.getStringArrayExtra("newmembers");
@@ -120,7 +118,7 @@ public class NewGroupActivity extends BaseActivity {
 						runOnUiThread(new Runnable() {
 							public void run() {
 								progressDialog.dismiss();
-								Toast.makeText(NewGroupActivity.this, st2 + e.getLocalizedMessage(), 1).show();
+								Toast.makeText(NewGroupActivity.this, st2 + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 							}
 						});
 					}

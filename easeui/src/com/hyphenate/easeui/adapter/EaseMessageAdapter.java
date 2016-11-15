@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-import com.hyphenate.chat.EMChatManager;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
@@ -92,9 +91,10 @@ public class EaseMessageAdapter extends BaseAdapter{
 	
 	Handler handler = new Handler() {
 		private void refreshList() {
-			// UI线程不能直接使用conversation.getAllMessages()
-			// 否则在UI刷新过程中，如果收到新的消息，会导致并发问题
-			messages = (EMMessage[]) conversation.getAllMessages().toArray(new EMMessage[0]);
+			// you should not call getAllMessages() in UI thread
+			// otherwise there is problem when refreshing UI and there is new message arrive
+			java.util.List<EMMessage> var = conversation.getAllMessages();
+			messages = var.toArray(new EMMessage[var.size()]);
 			conversation.markAllMessagesAsRead();
 			notifyDataSetChanged();
 		}
@@ -120,10 +120,6 @@ public class EaseMessageAdapter extends BaseAdapter{
 		}
 	};
 
-
-	/**
-	 * 刷新页面
-	 */
 	public void refresh() {
 		if (handler.hasMessages(HANDLER_MESSAGE_REFRESH_LIST)) {
 			return;
@@ -133,10 +129,9 @@ public class EaseMessageAdapter extends BaseAdapter{
 	}
 	
 	/**
-     * 刷新页面, 选择最后一个
+     * refresh and select the last
      */
     public void refreshSelectLast() {
-        // avoid refresh too frequently when receiving large amount offline messages
         final int TIME_DELAY_REFRESH_SELECT_LAST = 100;
         handler.removeMessages(HANDLER_MESSAGE_REFRESH_LIST);
         handler.removeMessages(HANDLER_MESSAGE_SELECT_LAST);
@@ -145,7 +140,7 @@ public class EaseMessageAdapter extends BaseAdapter{
     }
     
     /**
-     * 刷新页面, 选择Position
+     * refresh and seek to the position
      */
     public void refreshSeekTo(int position) {
         handler.sendMessage(handler.obtainMessage(HANDLER_MESSAGE_REFRESH_LIST));
@@ -167,14 +162,14 @@ public class EaseMessageAdapter extends BaseAdapter{
 	}
 	
 	/**
-     * 获取item数
+     * get count of messages
      */
     public int getCount() {
         return messages == null ? 0 : messages.length;
     }
 	
 	/**
-	 * 获取item类型数
+	 * get number of message type, here 14 = (EMMessage.Type) * 2
 	 */
 	public int getViewTypeCount() {
 	    if(customRowProvider != null && customRowProvider.getCustomChatRowTypeCount() > 0){
@@ -185,7 +180,7 @@ public class EaseMessageAdapter extends BaseAdapter{
 	
 
 	/**
-	 * 获取item类型
+	 * get type of item
 	 */
 	public int getItemViewType(int position) {
 		EMMessage message = getItem(position); 
@@ -265,7 +260,8 @@ public class EaseMessageAdapter extends BaseAdapter{
 		if(convertView == null){
 			convertView = createChatRow(context, message, position);
 		}
-		//缓存的view的message很可能不是当前item的，传入当前message和position更新ui
+
+		//refresh ui with messages
 		((EaseChatRow)convertView).setUpView(message, position, itemClickListener);
 		
 		return convertView;
@@ -325,7 +321,5 @@ public class EaseMessageAdapter extends BaseAdapter{
     public Drawable getOtherBuddleBg() {
         return otherBuddleBg;
     }
-	
-	
-	
+
 }

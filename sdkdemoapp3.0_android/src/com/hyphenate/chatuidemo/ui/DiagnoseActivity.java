@@ -1,13 +1,6 @@
 package com.hyphenate.chatuidemo.ui;
 
-import com.hyphenate.EMCallBack;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.util.EMLog;
-
 import android.app.ProgressDialog;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,6 +8,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.util.EMLog;
 
 /**
  * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
@@ -28,22 +26,20 @@ import android.widget.Toast;
  * language governing permissions and limitations under the License.
  */
 /**
- * 诊断界面；在此上传错误日志
+ * Diagnose activity；user can upload log for debug purpose
  * 
  * @author lyuzhao
  * 
  */
 public class DiagnoseActivity extends BaseActivity implements OnClickListener {
-	private TextView currentVersion;
-	private Button uploadLog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.em_activity_diagnose);
 
-		currentVersion = (TextView) findViewById(R.id.tv_version);
-		uploadLog = (Button) findViewById(R.id.button_uploadlog);
+		TextView currentVersion = (TextView) findViewById(R.id.tv_version);
+		Button uploadLog = (Button) findViewById(R.id.button_uploadlog);
 		uploadLog.setOnClickListener(this);
 		String strVersion = "";
 		try {
@@ -62,7 +58,6 @@ public class DiagnoseActivity extends BaseActivity implements OnClickListener {
 	}
 
 	private String getVersionName() throws Exception {
-		// 获取packagemanager的实例
 		return EMClient.getInstance().getChatConfig().getVersion();
 	}
 

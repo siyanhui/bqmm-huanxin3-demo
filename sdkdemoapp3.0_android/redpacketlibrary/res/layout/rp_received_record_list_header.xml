@@ -9,14 +9,39 @@
     <ImageView
         android:id="@+id/iv_avatar"
         style="@style/AvatarIconStyle"
-        android:src="@drawable/rp_avatar"
         android:background="@drawable/rp_bg_circular"
+        android:src="@drawable/rp_avatar"
         />
-
-    <TextView
-        android:id="@+id/tv_username"
-        style="@style/UserNameStyle"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/size27px"
+        android:gravity="center"
+        >
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_black"
+            android:textSize="@dimen/font45px"
+            android:layout_marginTop="0dp"
+            android:maxLines="1"
+            android:maxEms="10"
+            android:ellipsize="end"
+            android:layout_gravity="center"
+            android:gravity="center"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/name_str_format_received"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="@color/text_black"
+            android:textSize="@dimen/font45px"
+            />
+    </LinearLayout>
 
 
     <TextView

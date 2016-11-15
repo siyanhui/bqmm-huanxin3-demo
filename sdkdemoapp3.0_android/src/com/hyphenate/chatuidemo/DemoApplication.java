@@ -15,13 +15,13 @@ package com.hyphenate.chatuidemo;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.support.multidex.MultiDex;
 
 import com.easemob.redpacketsdk.RedPacket;
-import com.melink.bqmmsdk.sdk.BQMM;
-import com.tencent.bugly.crashreport.CrashReport;
+// ============== fabric start
+//import com.crashlytics.android.Crashlytics;
+//import io.fabric.sdk.android.Fabric;
+// ============== fabric end
 
 public class DemoApplication extends Application {
 
@@ -31,7 +31,7 @@ public class DemoApplication extends Application {
 	public final String PREF_USERNAME = "username";
 	
 	/**
-	 * 当前用户nickname,为了苹果推送不是userid而是昵称
+	 * nickname for current user, the nickname instead of ID be shown when user receive notification from APNs
 	 */
 	public static String currentUserNick = "";
 
@@ -39,24 +39,18 @@ public class DemoApplication extends Application {
 	public void onCreate() {
 		MultiDex.install(this);
 		super.onCreate();
+// ============== fabric start
+//		Fabric.with(this, new Crashlytics());
+// ============== fabric end
         applicationContext = this;
         instance = this;
         
         //init demo helper
         DemoHelper.getInstance().init(applicationContext);
+		//red packet code : 初始化红包上下文，开启日志输出开关
 		RedPacket.getInstance().initContext(applicationContext);
-		CrashReport.initCrashReport(getApplicationContext());
-
-		/**
-		 * BQMM集成
-		 * 首先从AndroidManifest.xml中取得appId和appSecret，然后对BQMM SDK进行初始化
-		 */
-		try {
-			Bundle bundle = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA).metaData;
-			BQMM.getInstance().initConfig(applicationContext, bundle.getString("bqmm_app_id"), bundle.getString("bqmm_app_secret"));
-		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
-		}
+		RedPacket.getInstance().setDebugMode(true);
+		//end of red packet code
 	}
 
 	public static DemoApplication getInstance() {

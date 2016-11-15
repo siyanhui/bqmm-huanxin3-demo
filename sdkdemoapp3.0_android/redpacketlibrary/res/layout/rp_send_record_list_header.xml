@@ -9,21 +9,46 @@
     <ImageView
         android:id="@+id/iv_avatar"
         style="@style/AvatarIconStyle"
-        android:src="@drawable/rp_avatar"
         android:background="@drawable/rp_bg_circular"
+        android:src="@drawable/rp_avatar"
         />
 
-    <TextView
-        android:id="@+id/tv_username"
-        style="@style/UserNameStyle"
-        android:text="hill"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size27px"
+        android:gravity="center"
+        android:orientation="horizontal"
+        >
 
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="0dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxEms="10"
+            android:maxLines="1"
+            android:textColor="@color/text_black"
+            android:textSize="@dimen/font45px"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/name_str_format_send"
+            android:textColor="@color/text_black"
+            android:textSize="@dimen/font45px"
+            />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_send_money_amount"
         style="@style/ReceivedMoneyStyle"
-        android:text="8888"
         />
 
     <LinearLayout

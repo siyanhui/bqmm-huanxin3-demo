@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.hyphenate.chat.EMChatManager;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
@@ -72,7 +71,7 @@ public class EaseChatMessageList extends RelativeLayout{
         messageAdapter.setMyBubbleBg(myBubbleBg);
         messageAdapter.setOtherBuddleBg(otherBuddleBg);
         messageAdapter.setCustomChatRowProvider(customChatRowProvider);
-        // 设置adapter显示消息
+        // set message adapter
         listView.setAdapter(messageAdapter);
         
         refreshSelectLast();
@@ -89,7 +88,7 @@ public class EaseChatMessageList extends RelativeLayout{
     
     
     /**
-     * 刷新列表
+     * refresh
      */
     public void refresh(){
         if (messageAdapter != null) {
@@ -98,7 +97,7 @@ public class EaseChatMessageList extends RelativeLayout{
     }
     
     /**
-     * 刷新列表，并且跳至最后一个item
+     * refresh and jump to the last
      */
     public void refreshSelectLast(){
         if (messageAdapter != null) {
@@ -107,7 +106,7 @@ public class EaseChatMessageList extends RelativeLayout{
     }
     
     /**
-     * 刷新页面,并跳至给定position
+     * refresh and jump to the position
      * @param position
      */
     public void refreshSeekTo(int position){
@@ -116,20 +115,10 @@ public class EaseChatMessageList extends RelativeLayout{
         }
     }
     
-    
-
-    /**
-     * 获取listview
-     * @return
-     */
 	public ListView getListView() {
 		return listView;
 	} 
-	
-	/**
-	 * 获取SwipeRefreshLayout
-	 * @return
-	 */
+
 	public SwipeRefreshLayout getSwipeRefreshLayout(){
 	    return swipeRefreshLayout;
 	}
@@ -137,11 +126,7 @@ public class EaseChatMessageList extends RelativeLayout{
 	public EMMessage getItem(int position){
 	    return messageAdapter.getItem(position);
 	}
-	
-	/**
-	 * 设置是否显示用户昵称
-	 * @param showUserNick
-	 */
+
 	public void setShowUserNick(boolean showUserNick){
 	    this.showUserNick = showUserNick;
 	}
@@ -153,8 +138,8 @@ public class EaseChatMessageList extends RelativeLayout{
 	public interface MessageListItemClickListener{
 	    void onResendClick(EMMessage message);
 	    /**
-	     * 控件有对气泡做点击事件默认实现，如果需要自己实现，return true。
-	     * 当然也可以在相应的chatrow的onBubbleClick()方法里实现点击事件
+	     * there is default handling when bubble is clicked, if you want handle it, return true
+	     * another way is you implement in onBubbleClick() of chat row
 	     * @param message
 	     * @return
 	     */
@@ -165,7 +150,7 @@ public class EaseChatMessageList extends RelativeLayout{
 	}
 	
 	/**
-	 * 设置list item里控件的点击事件
+	 * set click listener
 	 * @param listener
 	 */
 	public void setItemClickListener(MessageListItemClickListener listener){
@@ -175,7 +160,7 @@ public class EaseChatMessageList extends RelativeLayout{
 	}
 	
 	/**
-	 * 设置自定义chatrow提供者
+	 * set chat row provider
 	 * @param rowProvider
 	 */
 	public void setCustomChatRowProvider(EaseCustomChatRowProvider rowProvider){

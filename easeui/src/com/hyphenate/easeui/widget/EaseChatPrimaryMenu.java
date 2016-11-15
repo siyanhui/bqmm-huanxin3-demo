@@ -16,35 +16,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.hyphenate.easeui.R;
-import com.melink.bqmmsdk.sdk.BQMM;
-import com.melink.bqmmsdk.widget.BQMMEditView;
-import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 /**
- * 聊天输入栏主菜单栏
+ * primary menu
  *
  */
 public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnClickListener {
-    /**
-     * BQMM集成
-     * 将EditText改为BQMM提供的
-     */
-    private BQMMEditView editText;
+    private EditText editText;
     private View buttonSetModeKeyboard;
     private RelativeLayout edittext_layout;
     private View buttonSetModeVoice;
-    /**
-     * BQMM集成
-     * 将发送按钮改成BQMM提供的类
-     */
-    private BQMMSendButton buttonSend;
+    private View buttonSend;
     private View buttonPressToSpeak;
     private ImageView faceNormal;
     private ImageView faceChecked;
     private Button buttonMore;
-    private RelativeLayout faceLayout;
-    private Context context;
-    private EaseVoiceRecorderView voiceRecorderView;
 
     public EaseChatPrimaryMenu(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -61,35 +47,21 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
 
     private void init(final Context context, AttributeSet attrs) {
-        this.context = context;
+        Context context1 = context;
         LayoutInflater.from(context).inflate(R.layout.ease_widget_chat_primary_menu, this);
-        /**
-         * BQMM集成
-         * 转换类型，并传递给BQMM
-         */
-        editText = (BQMMEditView) findViewById(R.id.et_sendmessage);
-        BQMM.getInstance().setEditView(editText);
+        editText = (EditText) findViewById(R.id.et_sendmessage);
         buttonSetModeKeyboard = findViewById(R.id.btn_set_mode_keyboard);
         edittext_layout = (RelativeLayout) findViewById(R.id.edittext_layout);
         buttonSetModeVoice = findViewById(R.id.btn_set_mode_voice);
-        /**
-         * BQMM集成
-         * 转换类型，并传递给BQMM
-         */
-        buttonSend = (BQMMSendButton) findViewById(R.id.btn_send);
-        BQMM.getInstance().setSendButton(buttonSend);
+        buttonSend = findViewById(R.id.btn_send);
         buttonPressToSpeak = findViewById(R.id.btn_press_to_speak);
         faceNormal = (ImageView) findViewById(R.id.iv_face_normal);
         faceChecked = (ImageView) findViewById(R.id.iv_face_checked);
-        faceLayout = (RelativeLayout) findViewById(R.id.rl_face);
+        RelativeLayout faceLayout = (RelativeLayout) findViewById(R.id.rl_face);
         buttonMore = (Button) findViewById(R.id.btn_more);
         edittext_layout.setBackgroundResource(R.drawable.ease_input_bar_bg_normal);
-
-        /**
-         * BQMM集成
-         * 发送按钮的点击事件会由BQMM本身进行处理，此处删去一行
-         */
-
+        
+        buttonSend.setOnClickListener(this);
         buttonSetModeKeyboard.setOnClickListener(this);
         buttonSetModeVoice.setOnClickListener(this);
         buttonMore.setOnClickListener(this);
@@ -109,7 +81,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
 
             }
         });
-        // 监听文字框
+        // listen the text change
         editText.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -121,11 +93,6 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
                     buttonMore.setVisibility(View.VISIBLE);
                     buttonSend.setVisibility(View.GONE);
                 }
-                /**
-                 * BQMM集成
-                 * 增加输入联想功能
-                 */
-                BQMM.getInstance().startShortcutPopupWindow(getContext(), s.toString(), buttonSend);
             }
 
             @Override
@@ -152,15 +119,15 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
     
     /**
-     * 设置长按说话录制控件
+     * set recorder view when speak icon is touched
      * @param voiceRecorderView
      */
     public void setPressToSpeakRecorderView(EaseVoiceRecorderView voiceRecorderView){
-        this.voiceRecorderView = voiceRecorderView;
+        EaseVoiceRecorderView voiceRecorderView1 = voiceRecorderView;
     }
 
     /**
-     * 表情输入
+     * append emoji icon to editText
      * @param emojiContent
      */
     public void onEmojiconInputEvent(CharSequence emojiContent){
@@ -168,7 +135,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
     
     /**
-     * 表情删除
+     * delete emojicon
      */
     public void onEmojiconDeleteEvent(){
         if (!TextUtils.isEmpty(editText.getText())) {
@@ -178,7 +145,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
     
     /**
-     * 点击事件
+     * on clicked event
      * @param view
      */
     @Override
@@ -225,7 +192,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     
     
     /**
-     * 显示语音图标按钮
+     * show voice icon when speak bar is touched
      * 
      */
     protected void setModeVoice() {
@@ -242,7 +209,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     }
 
     /**
-     * 显示键盘图标
+     * show keyboard
      */
     protected void setModeKeyboard() {
         edittext_layout.setVisibility(View.VISIBLE);

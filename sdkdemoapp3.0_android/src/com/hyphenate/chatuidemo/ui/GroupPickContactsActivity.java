@@ -13,20 +13,6 @@
  */
 package com.hyphenate.chatuidemo.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMGroup;
-import com.hyphenate.chatuidemo.Constant;
-import com.hyphenate.chatuidemo.DemoHelper;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.easeui.adapter.EaseContactAdapter;
-import com.hyphenate.easeui.domain.EaseUser;
-import com.hyphenate.easeui.widget.EaseSidebar;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,39 +27,49 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMGroup;
+import com.hyphenate.chatuidemo.Constant;
+import com.hyphenate.chatuidemo.DemoHelper;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.easeui.adapter.EaseContactAdapter;
+import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.widget.EaseSidebar;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class GroupPickContactsActivity extends BaseActivity {
-	private ListView listView;
-	/** 是否为一个新建的群组 */
+	/** if this is a new group */
 	protected boolean isCreatingNewGroup;
-	/** 是否为单选 */
-	private boolean isSignleChecked;
 	private PickContactAdapter contactAdapter;
-	/** group中一开始就有的成员 */
-	private List<String> exitingMembers;
+	/** members already in the group */
+	private List<String> existMembers;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.em_activity_group_pick_contacts);
 
-		// String groupName = getIntent().getStringExtra("groupName");
 		String groupId = getIntent().getStringExtra("groupId");
-		if (groupId == null) {// 创建群组
+		if (groupId == null) {// create new group
 			isCreatingNewGroup = true;
 		} else {
-			// 获取此群组的成员列表
+			// get members of the group
 			EMGroup group = EMClient.getInstance().groupManager().getGroup(groupId);
-			exitingMembers = group.getMembers();
+			existMembers = group.getMembers();
 		}
-		if(exitingMembers == null)
-			exitingMembers = new ArrayList<String>();
-		// 获取好友列表
+		if(existMembers == null)
+			existMembers = new ArrayList<String>();
+		// get contact list
 		final List<EaseUser> alluserList = new ArrayList<EaseUser>();
 		for (EaseUser user : DemoHelper.getInstance().getContactList().values()) {
 			if (!user.getUsername().equals(Constant.NEW_FRIENDS_USERNAME) & !user.getUsername().equals(Constant.GROUP_USERNAME) & !user.getUsername().equals(Constant.CHAT_ROOM) & !user.getUsername().equals(Constant.CHAT_ROBOT))
 				alluserList.add(user);
 		}
-		// 对list进行排序
+		// sort the list
         Collections.sort(alluserList, new Comparator<EaseUser>() {
 
             @Override
@@ -92,7 +88,7 @@ public class GroupPickContactsActivity extends BaseActivity {
             }
         });
 
-		listView = (ListView) findViewById(R.id.list);
+		ListView listView = (ListView) findViewById(R.id.list);
 		contactAdapter = new PickContactAdapter(this, R.layout.em_row_contact_with_checkbox, alluserList);
 		listView.setAdapter(contactAdapter);
 		((EaseSidebar) findViewById(R.id.sidebar)).setListView(listView);
@@ -108,17 +104,18 @@ public class GroupPickContactsActivity extends BaseActivity {
 	}
 
 	/**
-	 * 确认选择的members
+	 * save selected members
 	 * 
 	 * @param v
 	 */
 	public void save(View v) {
-		setResult(RESULT_OK, new Intent().putExtra("newmembers", getToBeAddMembers().toArray(new String[0])));
+		List<String> var = getToBeAddMembers();
+		setResult(RESULT_OK, new Intent().putExtra("newmembers", var.toArray(new String[var.size()])));
 		finish();
 	}
 
 	/**
-	 * 获取要被添加的成员
+	 * get selected members
 	 * 
 	 * @return
 	 */
@@ -127,7 +124,7 @@ public class GroupPickContactsActivity extends BaseActivity {
 		int length = contactAdapter.isCheckedArray.length;
 		for (int i = 0; i < length; i++) {
 			String username = contactAdapter.getItem(i).getUsername();
-			if (contactAdapter.isCheckedArray[i] && !exitingMembers.contains(username)) {
+			if (contactAdapter.isCheckedArray[i] && !existMembers.contains(username)) {
 				members.add(username);
 			}
 		}
@@ -150,51 +147,41 @@ public class GroupPickContactsActivity extends BaseActivity {
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
-//			if (position > 0) {
-				final String username = getItem(position).getUsername();
-				// 选择框checkbox
-				final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbox);
-				ImageView avatarView = (ImageView) view.findViewById(R.id.avatar);
-				TextView nameView = (TextView) view.findViewById(R.id.name);
-				
-				if (checkBox != null) {
-				    if(exitingMembers != null && exitingMembers.contains(username)){
-	                    checkBox.setButtonDrawable(R.drawable.em_checkbox_bg_gray_selector);
-	                }else{
-	                    checkBox.setButtonDrawable(R.drawable.em_checkbox_bg_selector);
-	                }
-					// checkBox.setOnCheckedChangeListener(null);
 
-					checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-						@Override
-						public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-							// 群组中原来的成员一直设为选中状态
-							if (exitingMembers.contains(username)) {
-									isChecked = true;
-									checkBox.setChecked(true);
-							}
-							isCheckedArray[position] = isChecked;
-							//如果是单选模式
-							if (isSignleChecked && isChecked) {
-								for (int i = 0; i < isCheckedArray.length; i++) {
-									if (i != position) {
-										isCheckedArray[i] = false;
-									}
-								}
-								contactAdapter.notifyDataSetChanged();
-							}
-							
+			final String username = getItem(position).getUsername();
+
+			final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbox);
+			ImageView avatarView = (ImageView) view.findViewById(R.id.avatar);
+			TextView nameView = (TextView) view.findViewById(R.id.name);
+			
+			if (checkBox != null) {
+			    if(existMembers != null && existMembers.contains(username)){
+                    checkBox.setButtonDrawable(R.drawable.em_checkbox_bg_gray_selector);
+                }else{
+                    checkBox.setButtonDrawable(R.drawable.em_checkbox_bg_selector);
+                }
+
+				checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+						// check the exist members
+						if (existMembers.contains(username)) {
+								isChecked = true;
+								checkBox.setChecked(true);
 						}
-					});
-					// 群组中原来的成员一直设为选中状态
-					if (exitingMembers.contains(username)) {
-							checkBox.setChecked(true);
-							isCheckedArray[position] = true;
-					} else {
-						checkBox.setChecked(isCheckedArray[position]);
+						isCheckedArray[position] = isChecked;
+
 					}
+				});
+				// keep exist members checked
+				if (existMembers.contains(username)) {
+						checkBox.setChecked(true);
+						isCheckedArray[position] = true;
+				} else {
+					checkBox.setChecked(isCheckedArray[position]);
 				}
-//			}
+			}
+
 			return view;
 		}
 	}

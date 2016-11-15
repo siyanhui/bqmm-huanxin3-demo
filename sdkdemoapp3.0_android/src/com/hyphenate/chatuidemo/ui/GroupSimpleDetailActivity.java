@@ -14,12 +14,6 @@
 
 package com.hyphenate.chatuidemo.ui;
 
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.chat.EMGroup;
-import com.hyphenate.chat.EMGroupInfo;
-import com.hyphenate.chatuidemo.R;
-import com.hyphenate.exceptions.HyphenateException;
-
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +21,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMGroup;
+import com.hyphenate.chat.EMGroupInfo;
+import com.hyphenate.chatuidemo.R;
+import com.hyphenate.exceptions.HyphenateException;
 
 public class GroupSimpleDetailActivity extends BaseActivity {
 	private Button btn_add_group;
@@ -70,7 +70,7 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 		new Thread(new Runnable() {
 
 			public void run() {
-				//从服务器获取详情
+				//get detail from server
 				try {
 					group = EMClient.getInstance().groupManager().getGroupFromServer(groupid);
 					runOnUiThread(new Runnable() {
@@ -84,7 +84,7 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 					runOnUiThread(new Runnable() {
 						public void run() {
 							progressBar.setVisibility(View.INVISIBLE);
-							Toast.makeText(GroupSimpleDetailActivity.this, st1+e.getMessage(), 1).show();
+							Toast.makeText(GroupSimpleDetailActivity.this, st1+e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 					});
 				}
@@ -94,7 +94,7 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 		
 	}
 	
-	//加入群聊
+	//join the group
 	public void addToGroup(View view){
 		String st1 = getResources().getString(R.string.Is_sending_a_request);
 		final String st2 = getResources().getString(R.string.Request_to_join);
@@ -102,14 +102,13 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 		final String st4 = getResources().getString(R.string.Join_the_group_chat);
 		final String st5 = getResources().getString(R.string.Failed_to_join_the_group_chat);
 		final ProgressDialog pd = new ProgressDialog(this);
-//		getResources().getString(R.string)
 		pd.setMessage(st1);
 		pd.setCanceledOnTouchOutside(false);
 		pd.show();
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					//如果是membersOnly的群，需要申请加入，不能直接join
+					//if group is membersOnly，you need apply to join
 					if(group.isMembersOnly()){
 					    EMClient.getInstance().groupManager().applyJoinToGroup(groupid, st2);
 					}else{
@@ -119,9 +118,9 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 						public void run() {
 							pd.dismiss();
 							if(group.isMembersOnly())
-								Toast.makeText(GroupSimpleDetailActivity.this, st3, 0).show();
+								Toast.makeText(GroupSimpleDetailActivity.this, st3, Toast.LENGTH_SHORT).show();
 							else
-								Toast.makeText(GroupSimpleDetailActivity.this, st4, 0).show();
+								Toast.makeText(GroupSimpleDetailActivity.this, st4, Toast.LENGTH_SHORT).show();
 							btn_add_group.setEnabled(false);
 						}
 					});
@@ -130,7 +129,7 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 					runOnUiThread(new Runnable() {
 						public void run() {
 							pd.dismiss();
-							Toast.makeText(GroupSimpleDetailActivity.this, st5+e.getMessage(), 0).show();
+							Toast.makeText(GroupSimpleDetailActivity.this, st5+e.getMessage(), Toast.LENGTH_SHORT).show();
 						}
 					});
 				}
@@ -140,7 +139,8 @@ public class GroupSimpleDetailActivity extends BaseActivity {
 	
      private void showGroupDetail() {
          progressBar.setVisibility(View.INVISIBLE);
-         //获取详情成功，并且自己不在群中，才让加入群聊按钮可点击
+
+         //get group detail, and you are not in, then show join button
          if(!group.getMembers().contains(EMClient.getInstance().getCurrentUser()))
              btn_add_group.setEnabled(true);
          tv_name.setText(group.getGroupName());

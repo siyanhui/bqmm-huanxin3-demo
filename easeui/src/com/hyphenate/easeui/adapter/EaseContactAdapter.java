@@ -1,8 +1,5 @@
 package com.hyphenate.easeui.adapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -22,6 +19,9 @@ import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.util.EMLog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements SectionIndexer{
     private static final String TAG = "ContactAdapter";
@@ -55,7 +55,7 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
         if(convertView == null){
             holder = new ViewHolder();
             if(res == 0)
-                convertView = layoutInflater.inflate(R.layout.ease_row_contact, null);
+                convertView = layoutInflater.inflate(R.layout.ease_row_contact, parent, false);
             else
                 convertView = layoutInflater.inflate(res, null);
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
@@ -82,9 +82,8 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
         } else {
             holder.headerView.setVisibility(View.GONE);
         }
-        //设置头像
+
         EaseUserUtils.setUserNick(username, holder.nameView);
-        //设置头像
         EaseUserUtils.setUserAvatar(getContext(), username, holder.avatar);
         
        
@@ -176,9 +175,6 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
                 final ArrayList<EaseUser> newValues = new ArrayList<EaseUser>();
                 for(int i=0;i<count;i++){
                     final EaseUser user = mOriginalList.get(i);
-//                    String username = user.getNick();
-//                    if(username == null)
-//                        username = user.getNick();
                     String username = user.getUsername();
                     
                     if(username.startsWith(prefixString)){
@@ -189,12 +185,12 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
                          final int wordCount = words.length;
     
                          // Start at index 0, in case valueText starts with space(s)
-                         for (int k = 0; k < wordCount; k++) {
-                             if (words[k].startsWith(prefixString)) {
-                                 newValues.add(user);
-                                 break;
-                             }
-                         }
+                        for (String word : words) {
+                            if (word.startsWith(prefixString)) {
+                                newValues.add(user);
+                                break;
+                            }
+                        }
                     }
                 }
                 results.values=newValues;

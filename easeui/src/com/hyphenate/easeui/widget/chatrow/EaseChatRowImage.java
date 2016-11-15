@@ -12,7 +12,6 @@ import com.hyphenate.easeui.model.EaseImageCache;
 import com.hyphenate.easeui.ui.EaseShowBigImageActivity;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.utils.EaseImageUtils;
-import com.hyphenate.util.EMLog;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +33,7 @@ public class EaseChatRowImage extends EaseChatRowFile{
     }
 
     @Override
-    protected void onInflatView() {
+    protected void onInflateView() {
         inflater.inflate(message.direct() == EMMessage.Direct.RECEIVE ? R.layout.ease_row_received_picture : R.layout.ease_row_sent_picture, this);
     }
 
@@ -48,7 +47,7 @@ public class EaseChatRowImage extends EaseChatRowFile{
     @Override
     protected void onSetUpView() {
         imgBody = (EMImageMessageBody) message.getBody();
-        // 接收方向的消息
+        // received messages
         if (message.direct() == EMMessage.Direct.RECEIVE) {
             if (imgBody.thumbnailDownloadStatus() == EMFileMessageBody.EMDownloadStatus.DOWNLOADING ||
                     imgBody.thumbnailDownloadStatus() == EMFileMessageBody.EMDownloadStatus.PENDING) {
@@ -60,7 +59,7 @@ public class EaseChatRowImage extends EaseChatRowFile{
                 imageView.setImageResource(R.drawable.ease_default_image);
                 String thumbPath = imgBody.thumbnailLocalPath();
                 if (!new File(thumbPath).exists()) {
-                    // 兼容旧版SDK收到的thumbnail
+                	// to make it compatible with thumbnail received in previous version
                     thumbPath = EaseImageUtils.getThumbnailImagePath(imgBody.getLocalUrl());
                 }
                 showImageView(thumbPath, imageView, imgBody.getLocalUrl(), message);
@@ -90,8 +89,8 @@ public class EaseChatRowImage extends EaseChatRowFile{
             // The local full size pic does not exist yet.
             // ShowBigImage needs to download it from the server
             // first
-            intent.putExtra("secret", imgBody.getSecret());
-            intent.putExtra("remotepath", imgBody.getRemoteUrl());
+            String msgId = message.getMsgId();
+            intent.putExtra("messageId", msgId);
             intent.putExtra("localUrl", imgBody.getLocalUrl());
         }
         if (message != null && message.direct() == EMMessage.Direct.RECEIVE && !message.isAcked()

@@ -3,7 +3,7 @@ package com.hyphenate.easeui.ui;
 import com.hyphenate.EMGroupChangeListener;
 
 /**
- * 群组被解散或者被T监听
+ * group change listener
  *
  */
 public abstract class EaseGroupRemoveListener implements EMGroupChangeListener{
@@ -33,7 +33,7 @@ public abstract class EaseGroupRemoveListener implements EMGroupChangeListener{
     }
 
     @Override
-    public void onInvitationAccpted(String groupId, String inviter, String reason) {
+    public void onInvitationAccepted(String groupId, String inviter, String reason) {
         // TODO Auto-generated method stub
         
     }

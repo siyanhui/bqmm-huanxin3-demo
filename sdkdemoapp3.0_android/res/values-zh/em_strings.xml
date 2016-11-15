@@ -47,6 +47,7 @@
     <string name="recording_video">录制视频</string>
     <string name="stop_record">停止录制</string>
     <string name="switch_camera">切换摄像头</string>
+    <string name="capture_image">抓取图片</string>
     <string name="record_finish_toast">录制完毕，文件存储在%s</string>
     <string name="location_prefix">[我的位置]</string>
     <string name="picture">[图片]</string>
@@ -69,6 +70,7 @@
     <string name="exit_group">退出</string>
     <string name="connect_conflict">同一帐号已在其他设备登录</string>
     <string name="em_user_remove">此用户已被移除</string>
+    <string name="user_forbidden">用户被服务器限制连接</string>
     <string name="set">设置</string>
     <string name="notify">新消息提醒</string>
     <string name="newnotify">接收新消息通知</string>
@@ -77,6 +79,8 @@
     <string name="chatset">聊天设置</string>
     <string name="yangshengqi">使用扬声器播放语音</string>
     <string name="book_black">通讯录黑名单</string>
+    <string name="set_custom_appkey">自定义App key</string>
+    <string name="set_custom_server">自定义server</string>
     <string name="session">会话</string>
     <string name="address_book">通讯录</string>
     <string name="setting">设置</string>
@@ -135,6 +139,7 @@
     <string name="accept_join_group">同意加入群：</string>
     <string name="refuse_join_group">拒绝加入群：</string>
     <string name="at_your_in_group">%s在群聊中@了你</string>
+    <string name="emojicon_test_name">示例</string>
     
     <string name="not_add_myself">不能添加自己</string>
     <string name="This_user_is_already_your_friend">此用户已是你的好友</string>
@@ -238,7 +243,7 @@
     <string name="network_anomalies">网络异常，请检查网络！</string>
     <string name="User_already_exists">用户已存在！</string>
     <string name="registration_failed_without_permission">注册失败，无权限！</string>
-    <string name="Registration_failed">注册失败:</string>
+    <string name="Registration_failed">注册失败</string>
     <string name="Are_logged_out">正在退出登录..</string>
     <string name="Download_the_pictures">下载图片: 0%</string>
     <string name="Download_the_pictures_new">下载图片:</string>
@@ -291,7 +296,8 @@
     <string name="chatroom_allow_owner_leave"> 允许聊天室群主离开</string>
     <string name="delete_msg_when_exit_group">退出群组时删除聊天数据</string>
     <string name="auto_accept_group_invitation">自动同意群组加群邀请</string>
-    <string name="adaptive_video_encode">视频自适应码率编码</string>    
+    <string name="adaptive_video_encode">视频自适应码率编码</string>
+    <string name="offline_call_push">通话离线推送</string>
     <string name="group_id">群ID</string>
     <string name="move_out_backlist">移出黑名单</string>
     <string name="input_new_nick_hint">输入新昵称</string>
@@ -330,4 +336,8 @@
     
     <string name="network_unstable">网络不稳定</string>
     <string name="no_call_data">没有通话数据</string>
+
+    <!-- lint -->
+    <string name="delete_contact">删除联系人</string>
+    <string name="loading_more">正在加载更多...</string>
 </resources>

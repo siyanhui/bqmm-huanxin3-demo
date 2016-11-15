@@ -1,12 +1,5 @@
 package com.hyphenate.chatuidemo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 
 import com.hyphenate.chatuidemo.db.UserDao;
@@ -14,6 +7,11 @@ import com.hyphenate.chatuidemo.domain.RobotUser;
 import com.hyphenate.chatuidemo.utils.PreferenceManager;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DemoModel {
     UserDao dao = null;
@@ -42,16 +40,13 @@ public class DemoModel {
     }
     
     /**
-     * 设置当前用户的环信id
+     * save current username
      * @param username
      */
     public void setCurrentUserName(String username){
         PreferenceManager.getInstance().setCurrentUserName(username);
     }
-    
-    /**
-     * 获取当前用户的环信id
-     */
+
     public String getCurrentUsernName(){
         return PreferenceManager.getInstance().getCurrentUsername();
     }
@@ -139,16 +134,13 @@ public class DemoModel {
         
         List<String> list = new ArrayList<String>();
         list.addAll(groups);
-        //直接删除groups的内容，可能会有并发的错误
-        synchronized (list) {
-            for(int i = 0; i < list.size(); i++){
-                if(EaseAtMessageHelper.get().getAtMeGroups().contains(list.get(i))){
-                    list.remove(i);
-                    i--;
-                }
+        for(int i = 0; i < list.size(); i++){
+            if(EaseAtMessageHelper.get().getAtMeGroups().contains(list.get(i))){
+                list.remove(i);
+                i--;
             }
         }
-        
+
         dao.setDisabledGroups(list);
         valueCache.put(Key.DisabledGroups, list);
     }
@@ -164,7 +156,8 @@ public class DemoModel {
             val = dao.getDisabledGroups();
             valueCache.put(Key.DisabledGroups, val);
         }
-       
+
+        //noinspection unchecked
         return (List<String>) val;
     }
     
@@ -188,7 +181,8 @@ public class DemoModel {
             val = dao.getDisabledIds();
             valueCache.put(Key.DisabledIds, val);
         }
-       
+
+        //noinspection unchecked
         return (List<String>) val;
     }
     
@@ -248,7 +242,55 @@ public class DemoModel {
     public boolean isAdaptiveVideoEncode() {
         return PreferenceManager.getInstance().isAdaptiveVideoEncode();
     }
-    
+
+    public void setPushCall(boolean value) {
+        PreferenceManager.getInstance().setPushCall(value);
+    }
+
+    public boolean isPushCall() {
+        return PreferenceManager.getInstance().isPushCall();
+    }
+
+    public void setRestServer(String restServer){
+        PreferenceManager.getInstance().setRestServer(restServer);
+    }
+
+    public String getRestServer(){
+        return  PreferenceManager.getInstance().getRestServer();
+    }
+
+    public void setIMServer(String imServer){
+        PreferenceManager.getInstance().setIMServer(imServer);
+    }
+
+    public String getIMServer(){
+        return PreferenceManager.getInstance().getIMServer();
+    }
+
+    public void enableCustomServer(boolean enable){
+        PreferenceManager.getInstance().enableCustomServer(enable);
+    }
+
+    public boolean isCustomServerEnable(){
+        return PreferenceManager.getInstance().isCustomServerEnable();
+    }
+
+    public void enableCustomAppkey(boolean enable) {
+        PreferenceManager.getInstance().enableCustomAppkey(enable);
+    }
+
+    public boolean isCustomAppkeyEnabled() {
+        return PreferenceManager.getInstance().isCustomAppkeyEnabled();
+    }
+
+    public void setCustomAppkey(String appkey) {
+        PreferenceManager.getInstance().setCustomAppkey(appkey);
+    }
+
+    public String getCutomAppkey() {
+        return PreferenceManager.getInstance().getCustomAppkey();
+    }
+
     enum Key{
         VibrateAndPlayToneOn,
         VibrateOn,

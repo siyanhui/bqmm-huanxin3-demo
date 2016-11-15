@@ -33,13 +33,10 @@
             android:layout_height="wrap_content" 
             android:layout_marginRight="@dimen/margin_chat_activity"
             android:layout_toLeftOf="@id/iv_userhead"
-            android:layout_below="@+id/tv_userid"
              android:background="@drawable/ease_chatto_bg"
             >
 
-            <!--BQMM集成-->
-            <!--将此处改为BQMMMessageText-->
-            <com.melink.bqmmsdk.widget.BQMMMessageText
+            <TextView
                 android:id="@+id/tv_chatcontent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

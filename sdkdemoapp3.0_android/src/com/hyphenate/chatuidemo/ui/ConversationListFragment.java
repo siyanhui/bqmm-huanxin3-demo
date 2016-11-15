@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.easemob.redpacketui.RedPacketConstant;
+import com.easemob.redpacketsdk.constant.RPConstant;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMConversation.EMConversationType;
@@ -20,9 +20,9 @@ import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chatuidemo.Constant;
 import com.hyphenate.chatuidemo.R;
 import com.hyphenate.chatuidemo.db.InviteMessgeDao;
+import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.ui.EaseConversationListFragment;
 import com.hyphenate.easeui.widget.EaseConversationList.EaseConversationListHelper;
-import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.NetUtils;
 
 public class ConversationListFragment extends EaseConversationListFragment{
@@ -40,7 +40,7 @@ public class ConversationListFragment extends EaseConversationListFragment{
     @Override
     protected void setUpView() {
         super.setUpView();
-        // 注册上下文菜单
+        // register context menu
         registerForContextMenu(conversationListView);
         conversationListView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -49,9 +49,9 @@ public class ConversationListFragment extends EaseConversationListFragment{
                 EMConversation conversation = conversationListView.getItem(position);
                 String username = conversation.getUserName();
                 if (username.equals(EMClient.getInstance().getCurrentUser()))
-                    Toast.makeText(getActivity(), R.string.Cant_chat_with_yourself, 0).show();
+                    Toast.makeText(getActivity(), R.string.Cant_chat_with_yourself, Toast.LENGTH_SHORT).show();
                 else {
-                    // 进入聊天页面
+                    // start chat acitivity
                     Intent intent = new Intent(getActivity(), ChatActivity.class);
                     if(conversation.isGroup()){
                         if(conversation.getType() == EMConversationType.ChatRoom){
@@ -68,32 +68,39 @@ public class ConversationListFragment extends EaseConversationListFragment{
                 }
             }
         });
+        //red packet code : 红包回执消息在会话列表最后一条消息的展示
         conversationListView.setConversationListHelper(new EaseConversationListHelper() {
             @Override
             public String onSetItemSecondaryText(EMMessage lastMessage) {
-                if (lastMessage.getBooleanAttribute(RedPacketConstant.MESSAGE_ATTR_IS_RED_PACKET_ACK_MESSAGE, false)) {
-                    try {
-                        String sendNick = lastMessage.getStringAttribute(RedPacketConstant.EXTRA_RED_PACKET_SENDER_NAME);
-                        String receiveNick = lastMessage.getStringAttribute(RedPacketConstant.EXTRA_RED_PACKET_RECEIVER_NAME);
-                        String msg;
-                        if (lastMessage.direct() == EMMessage.Direct.RECEIVE) {
-                            msg = String.format(getResources().getString(R.string.money_msg_someone_take_money),receiveNick);
+                if (lastMessage.getBooleanAttribute(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_ACK_MESSAGE, false)) {
+                    String sendNick = lastMessage.getStringAttribute(RPConstant.EXTRA_RED_PACKET_SENDER_NAME, "");
+                    String receiveNick = lastMessage.getStringAttribute(RPConstant.EXTRA_RED_PACKET_RECEIVER_NAME, "");
+                    String msg;
+                    if (lastMessage.direct() == EMMessage.Direct.RECEIVE) {
+                        msg = String.format(getResources().getString(R.string.msg_someone_take_red_packet), receiveNick);
+                    } else {
+                        if (sendNick.equals(receiveNick)) {
+                            msg = getResources().getString(R.string.msg_take_red_packet);
                         } else {
-                            if (sendNick.equals(receiveNick)) {
-                                msg = getResources().getString(R.string.money_msg_take_money);
-                            } else {
-                                msg = String.format(getResources().getString(R.string.money_msg_take_someone_money),sendNick);
-                            }
+                            msg = String.format(getResources().getString(R.string.msg_take_someone_red_packet), sendNick);
                         }
-                        return msg;
-                    } catch (HyphenateException e) {
-                        e.printStackTrace();
                     }
+                    return msg;
+                } else if (lastMessage.getBooleanAttribute(RPConstant.MESSAGE_ATTR_IS_TRANSFER_PACKET_MESSAGE, false)) {
+                    String transferAmount = lastMessage.getStringAttribute(RPConstant.EXTRA_TRANSFER_AMOUNT, "");
+                    String msg;
+                    if (lastMessage.direct() == EMMessage.Direct.RECEIVE) {
+                        msg =  String.format(getResources().getString(R.string.msg_transfer_to_you), transferAmount);
+                    } else {
+                        msg =  String.format(getResources().getString(R.string.msg_transfer_from_you),transferAmount);
+                    }
+                    return msg;
                 }
                 return null;
             }
         });
         super.setUpView();
+        //end of red packet code
     }
 
     @Override
@@ -124,8 +131,11 @@ public class ConversationListFragment extends EaseConversationListFragment{
     	if (tobeDeleteCons == null) {
     	    return true;
     	}
+        if(tobeDeleteCons.getType() == EMConversationType.GroupChat){
+            EaseAtMessageHelper.get().removeAtMeGroup(tobeDeleteCons.getUserName());
+        }
         try {
-            // 删除此会话
+            // delete conversation
             EMClient.getInstance().chatManager().deleteConversation(tobeDeleteCons.getUserName(), deleteMessage);
             InviteMessgeDao inviteMessgeDao = new InviteMessgeDao(getActivity());
             inviteMessgeDao.deleteMessage(tobeDeleteCons.getUserName());
@@ -134,7 +144,7 @@ public class ConversationListFragment extends EaseConversationListFragment{
         }
         refresh();
 
-        // 更新消息未读数
+        // update unread count
         ((MainActivity) getActivity()).updateUnreadLabel();
         return true;
     }

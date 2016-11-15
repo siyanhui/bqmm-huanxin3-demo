@@ -11,13 +11,6 @@
  */
 package com.hyphenate.chatuidemo.ui;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -57,23 +50,29 @@ import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
 public class RecorderVideoActivity extends BaseActivity implements
 		OnClickListener, SurfaceHolder.Callback, OnErrorListener,
 		OnInfoListener {
 	private static final String TAG = "RecorderVideoActivity";
 	private final static String CLASS_LABEL = "RecordActivity";
 	private PowerManager.WakeLock mWakeLock;
-	private ImageView btnStart;// 开始录制按钮
-	private ImageView btnStop;// 停止录制按钮
-	private MediaRecorder mediaRecorder;// 录制视频的类
-	private VideoView mVideoView;// 显示视频的控件
-	String localPath = "";// 录制的视频路径
+	private ImageView btnStart;
+	private ImageView btnStop;
+	private MediaRecorder mediaRecorder;
+	private VideoView mVideoView;// to display video
+	String localPath = "";// path to save recorded video
 	private Camera mCamera;
-	// 预览的宽高
 	private int previewWidth = 480;
 	private int previewHeight = 480;
 	private Chronometer chronometer;
-	private int frontCamera = 0;// 0是后置摄像头，1是前置摄像头
+	private int frontCamera = 0; // 0 is back camera，1 is front camera
 	private Button btn_switch;
 	Parameters cameraParameters = null;
 	private SurfaceHolder mSurfaceHolder;
@@ -82,10 +81,10 @@ public class RecorderVideoActivity extends BaseActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉标题栏
+		requestWindowFeature(Window.FEATURE_NO_TITLE);// no title
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
-		// 选择支持半透明模式，在有surfaceview的activity中使用
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);// full screen
+		// translucency mode，used in surface view
 		getWindow().setFormat(PixelFormat.TRANSLUCENT);
 		setContentView(R.layout.em_recorder_activity);
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -120,15 +119,12 @@ public class RecorderVideoActivity extends BaseActivity implements
 	protected void onResume() {
 		super.onResume();
 		if (mWakeLock == null) {
-			// 获取唤醒锁,保持屏幕常亮
+			// keep screen on
 			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 			mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK,
 					CLASS_LABEL);
 			mWakeLock.acquire();
 		}
-//		if (!initCamera()) {
-//			showFailDialog();
-//		}
 	}
 
 	@SuppressLint("NewApi")
@@ -179,13 +175,15 @@ public class RecorderVideoActivity extends BaseActivity implements
 			}
 
 		}
-		// 获取摄像头的所有支持的分辨率
+
+		// get all resolutions which camera provide
 		List<Camera.Size> resolutionList = Utils.getResolutionList(mCamera);
 		if (resolutionList != null && resolutionList.size() > 0) {
 			Collections.sort(resolutionList, new Utils.ResolutionComparator());
 			Camera.Size previewSize = null;
 			boolean hasSize = false;
-			// 如果摄像头支持640*480，那么强制设为640*480
+
+			// use 60*480 if camera support
 			for (int i = 0; i < resolutionList.size(); i++) {
 				Size size = resolutionList.get(i);
 				if (size != null && size.width == 640 && size.height == 480) {
@@ -196,7 +194,7 @@ public class RecorderVideoActivity extends BaseActivity implements
 					break;
 				}
 			}
-			// 如果不支持设为中间的那个
+			// use medium resolution if camera don't support the above resolution
 			if (!hasSize) {
 				int mediumResolution = resolutionList.size() / 2;
 				if (mediumResolution >= resolutionList.size())
@@ -206,18 +204,22 @@ public class RecorderVideoActivity extends BaseActivity implements
 				previewHeight = previewSize.height;
 
 			}
-
 		}
-
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+
 		if (mWakeLock != null) {
 			mWakeLock.release();
 			mWakeLock = null;
 		}
+
+		releaseRecorder();
+		releaseCamera();
+
+		finish();
 	}
 
 	@Override
@@ -235,13 +237,11 @@ public class RecorderVideoActivity extends BaseActivity implements
 			btnStart.setVisibility(View.INVISIBLE);
 			btnStart.setEnabled(false);
 			btnStop.setVisibility(View.VISIBLE);
-			// 重置其他
 			chronometer.setBase(SystemClock.elapsedRealtime());
 			chronometer.start();
 			break;
 		case R.id.recorder_stop:
 		    btnStop.setEnabled(false);
-			// 停止拍摄
 			stopRecording();
 			btn_switch.setVisibility(View.VISIBLE);
 			chronometer.stop();
@@ -285,7 +285,6 @@ public class RecorderVideoActivity extends BaseActivity implements
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// 将holder，这个holder为开始在oncreat里面取得的holder，将它赋给surfaceHolder
 		mSurfaceHolder = holder;
 	}
 
@@ -326,7 +325,7 @@ public class RecorderVideoActivity extends BaseActivity implements
 
 	@SuppressLint("NewApi")
 	private boolean initRecorder(){
-	    if(!EaseCommonUtils.isExitsSdcard()){
+	    if(!EaseCommonUtils.isSdcardExist()){
 	        showNoSDCardDialog();
 	        return false;
 	    }
@@ -338,33 +337,29 @@ public class RecorderVideoActivity extends BaseActivity implements
 			}
 		}
 		mVideoView.setVisibility(View.VISIBLE);
-		// TODO init button
 		mCamera.stopPreview();
 		mediaRecorder = new MediaRecorder();
 		mCamera.unlock();
 		mediaRecorder.setCamera(mCamera);
 		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-		// 设置录制视频源为Camera（相机）
 		mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		if (frontCamera == 1) {
 			mediaRecorder.setOrientationHint(270);
 		} else {
 			mediaRecorder.setOrientationHint(90);
 		}
-		// 设置录制完成后视频的封装格式THREE_GPP为3gp.MPEG_4为mp4
+
 		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		// 设置录制的视频编码h263 h264
 		mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-		// 设置视频录制的分辨率。必须放在设置编码和格式的后面，否则报错
+		// set resolution, should be set after the format and encoder was set
 		mediaRecorder.setVideoSize(previewWidth, previewHeight);
-		// 设置视频的比特率
 		mediaRecorder.setVideoEncodingBitRate(384 * 1024);
-		// // 设置录制的视频帧率。必须放在设置编码和格式的后面，否则报错
+		// set frame rate, should be set after the format and encoder was set
 		if (defaultVideoFrameRate != -1) {
 			mediaRecorder.setVideoFrameRate(defaultVideoFrameRate);
 		}
-		// 设置视频文件输出的路径
+		// set the path for video file
 		localPath = PathUtil.getInstance().getVideoPath() + "/"
 				+ System.currentTimeMillis() + ".mp4";
 		mediaRecorder.setOutputFile(localPath);
@@ -389,7 +384,7 @@ public class RecorderVideoActivity extends BaseActivity implements
 			mediaRecorder.setOnInfoListener(null);
 			try {
 				mediaRecorder.stop();
-			} catch (IllegalStateException e) {
+			} catch (Exception e) {
 				EMLog.e("video", "stopRecording error:" + e.getMessage());
 			}
 		}

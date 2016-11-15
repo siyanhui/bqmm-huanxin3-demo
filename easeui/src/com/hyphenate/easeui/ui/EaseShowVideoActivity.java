@@ -1,9 +1,5 @@
 package com.hyphenate.easeui.ui;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,16 +12,17 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.hyphenate.EMCallBack;
-import com.hyphenate.chat.EMChatManager;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.R;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 展示视频内容
- * 
- * @author Administrator
+ * show the video
  * 
  */
 public class EaseShowVideoActivity extends EaseBaseActivity{
@@ -81,8 +78,8 @@ public class EaseShowVideoActivity extends EaseBaseActivity{
 	}
 	
 	/**
-	 * 播放本地视频
-	 * @param localPath 视频路径
+	 * show local video
+	 * @param localPath -- local path of the video file
 	 */
 	private void showLocalVideo(String localPath){
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -96,7 +93,7 @@ public class EaseShowVideoActivity extends EaseBaseActivity{
 	
 
 	/**
-	 * 下载视频文件
+	 * download video file
 	 */
 	private void downloadVideo(final String remoteUrl,
 			final Map<String, String> header) {

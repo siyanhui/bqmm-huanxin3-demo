@@ -18,6 +18,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.easemob.redpacketsdk.RedPacket;
+import com.tencent.bugly.crashreport.CrashReport;
 // ============== fabric start
 //import com.crashlytics.android.Crashlytics;
 //import io.fabric.sdk.android.Fabric;
@@ -51,6 +52,7 @@ public class DemoApplication extends Application {
 		RedPacket.getInstance().initContext(applicationContext);
 		RedPacket.getInstance().setDebugMode(true);
 		//end of red packet code
+		CrashReport.initCrashReport(getApplicationContext());
 	}
 
 	public static DemoApplication getInstance() {

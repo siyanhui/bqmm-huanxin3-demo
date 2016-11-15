@@ -90,4 +90,5 @@ dependencies {
 //    }
 // ============== fabric end
     compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.tencent.bugly:crashreport:latest.release'
 }

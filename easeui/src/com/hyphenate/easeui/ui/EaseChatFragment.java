@@ -6,11 +6,13 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Gravity;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
@@ -55,6 +58,12 @@ import com.hyphenate.easeui.widget.EaseVoiceRecorderView.EaseVoiceRecorderCallba
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
+import com.melink.bqmmsdk.bean.Emoji;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.sdk.BQMMMessageHelper;
+import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
+
+import org.json.JSONArray;
 
 import java.io.File;
 import java.util.List;
@@ -110,7 +119,15 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
     private EMChatRoomChangeListener chatRoomChangeListener;
     private boolean isMessageListInited;
     protected MyItemClickListener extendMenuItemClickListener;
-
+    /**
+     * BQMM集成
+     * 键盘切换相关
+     */
+    private Rect tmp = new Rect();
+    private int mScreenHeight;
+    private final int DISTANCE_SLOP = 180;
+    private final String LAST_KEYBOARD_HEIGHT = "last_keyboard_height";
+    private boolean mPendingShowPlaceHolder;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ease_fragment_chat, container, false);
@@ -178,6 +195,63 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
         inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        /**
+         * BQMM集成
+         * 初始化BQMM
+         */
+        BQMM.getInstance().load();
+        /**
+         * BQMM集成
+         * 设置发送表情的回调，两个回调分别在发送大表情和发送图文混排表情时调用
+         */
+        BQMM.getInstance().setBqmmSendMsgListener(new IBqmmSendMessageListener() {
+            @Override
+            public void onSendFace(Emoji face) {
+                sendBQMMStickerMessage(face);
+            }
+
+            @Override
+            public void onSendMixedMessage(List<Object> emojis, boolean isMixedMessage) {
+                String msgString = BQMMMessageHelper.getMixedMessageString(emojis);
+                //判断一下是纯文本还是富文本
+                if (isMixedMessage) {
+                    sendBQMMMixedMessage(emojis);
+                } else {
+                    sendTextMessage(msgString);
+                }
+            }
+
+        });
+        /**
+         * 表情键盘切换监听
+         */
+        inputMenu.getPrimaryMenu().getEditText().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (mScreenHeight <= 0) {
+                    inputMenu.getGlobalVisibleRect(tmp);
+                    mScreenHeight = tmp.bottom;
+                }
+                if (inputMenu.isEmojiClick) {
+                    // 在设置mPendingShowPlaceHolder时已经调用了隐藏Keyboard的方法，直到Keyboard隐藏前都取消重绘
+                    if (isKeyboardVisible()) {
+                        return false;
+                    } else {
+                        showBqmmKeyboard();
+                        inputMenu.isEmojiClick = false;
+                        return false;
+                    }
+                } else {//BQMM -> Keyboard
+                    if (isBqmmKeyboardVisible() && isKeyboardVisible()) {
+                        inputMenu.hideExtendMenuContainer();
+                        return false;
+                    }
+
+                }
+                return true;
+            }
+        });
     }
 
     protected void setUpView() {
@@ -661,7 +735,51 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
     protected void inputAtUsername(String username){
         inputAtUsername(username, true);
     }
-    
+
+
+    /**
+     * BQMM集成
+     * 发送BQMM表情消息
+     *
+     * @param sticker 要发送的表情
+     */
+    protected void sendBQMMStickerMessage(@NonNull Emoji sticker) {
+        sendBQMMMessage(BQMMMessageHelper.getFaceMessageString(sticker), BQMMMessageHelper.getFaceMessageData(sticker), EaseConstant.BQMM_MESSAGE_TYPE_STICKER);
+    }
+
+    /**
+     * BQMM集成
+     * 发送BQMM混合消息
+     *
+     * @param messageContent 要发送的消息
+     */
+    protected void sendBQMMMixedMessage(@NonNull List<Object> messageContent) {
+        sendBQMMMessage(BQMMMessageHelper.getMixedMessageString(messageContent), BQMMMessageHelper.getMixedMessageData(messageContent), EaseConstant.BQMM_MESSAGE_TYPE_MIXED);
+    }
+
+    /**
+     * BQMM集成
+     * 发送BQMM消息
+     *
+     * @param content 要发送的文本消息
+     * @param content 要发送的BQMM JSON消息
+     */
+    private void sendBQMMMessage(@NonNull String content, @NonNull JSONArray messageJSONArray, @NonNull String type) {
+        EMMessage message;
+        if (EaseAtMessageHelper.get().containsAtUsername(content)) {
+            if (chatType != EaseConstant.CHATTYPE_GROUP) {
+                EMLog.e(TAG, "only support group chat message");
+                return;
+            }
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+            message.setAttribute(EaseConstant.MESSAGE_ATTR_AT_MSG, EaseAtMessageHelper.get().atListToJsonArray(EaseAtMessageHelper.get().getAtMessageUsernames(content)));
+        } else {
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        }
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_TYPE, type);
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT, messageJSONArray);
+        sendMessage(message);
+    }
 
     //send message
     protected void sendTextMessage(String content) {
@@ -1054,5 +1172,48 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
          */
         EaseCustomChatRowProvider onSetCustomChatRowProvider();
     }
-    
+    /**************************
+     * 表情键盘软键盘切换相关 start
+     **************************************/
+
+
+    private boolean isKeyboardVisible() {
+        return (getDistanceFromInputToBottom() > DISTANCE_SLOP && !isBqmmKeyboardVisible())
+                || (getDistanceFromInputToBottom() > (inputMenu.emojiconMenu.getHeight() + DISTANCE_SLOP) && isBqmmKeyboardVisible());
+    }
+
+
+
+    private void showBqmmKeyboard() {
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                inputMenu.chatExtendMenuContainer.setVisibility(View.VISIBLE);
+                inputMenu.emojiconMenu.showKeyboard();
+            }
+        }, 50);
+
+    }
+
+    private boolean isBqmmKeyboardVisible() {
+        return inputMenu.emojiconMenu.isKeyboardVisible();
+    }
+
+    /**
+     * 输入框的下边距离屏幕的距离
+     */
+    private int getDistanceFromInputToBottom() {
+        return mScreenHeight - getInputBottom();
+    }
+
+    /**
+     * 输入框下边的位置
+     */
+    private int getInputBottom() {
+        inputMenu.getPrimaryMenu().getEditText().getGlobalVisibleRect(tmp);
+        return tmp.bottom;
+    }
+
+    /**************************
+     * 表情键盘软键盘切换相关 end
+     **************************************/
 }

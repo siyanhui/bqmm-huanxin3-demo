@@ -1,9 +1,5 @@
 package com.hyphenate.easeui.widget;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
@@ -17,13 +13,15 @@ import android.widget.LinearLayout;
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseEmojiconGroupEntity;
-import com.hyphenate.easeui.model.EaseDefaultEmojiconDatas;
 import com.hyphenate.easeui.utils.EaseSmileUtils;
 import com.hyphenate.easeui.widget.EaseChatExtendMenu.EaseChatExtendMenuItemClickListener;
 import com.hyphenate.easeui.widget.EaseChatPrimaryMenuBase.EaseChatPrimaryMenuListener;
-import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenu;
 import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase;
 import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase.EaseEmojiconMenuListener;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
+
+import java.util.List;
 
 /**
  * input menu
@@ -34,11 +32,16 @@ import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase.EaseEmojiconMen
  *    EaseEmojiconMenu: emoji icons
  */
 public class EaseChatInputMenu extends LinearLayout {
+    public boolean isEmojiClick;
     FrameLayout primaryMenuContainer, emojiconMenuContainer;
     protected EaseChatPrimaryMenuBase chatPrimaryMenu;
-    protected EaseEmojiconMenuBase emojiconMenu;
+    /**
+     * BQMM集成
+     * 将原有的表情键盘改成BQMMKeyboard
+     */
+    public BQMMKeyboard emojiconMenu;
     protected EaseChatExtendMenu chatExtendMenu;
-    protected FrameLayout chatExtendMenuContainer;
+    public FrameLayout chatExtendMenuContainer;
     protected LayoutInflater layoutInflater;
 
     private Handler handler = new Handler();
@@ -92,14 +95,13 @@ public class EaseChatInputMenu extends LinearLayout {
         primaryMenuContainer.addView(chatPrimaryMenu);
 
         // emojicon menu, use default if no customized one
-        if(emojiconMenu == null){
-            emojiconMenu = (EaseEmojiconMenu) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
-            if(emojiconGroupList == null){
-                emojiconGroupList = new ArrayList<EaseEmojiconGroupEntity>();
-                emojiconGroupList.add(new EaseEmojiconGroupEntity(R.drawable.ee_1,  Arrays.asList(EaseDefaultEmojiconDatas.getData())));
-            }
-            ((EaseEmojiconMenu)emojiconMenu).init(emojiconGroupList);
-        }
+        /**
+         * BQMM集成
+         * 将表情栏改为BQMM的键盘，并传递给BQMM
+         */
+        emojiconMenu = (BQMMKeyboard) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
+        BQMM.getInstance().setKeyboard(emojiconMenu);
+
         emojiconMenuContainer.addView(emojiconMenu);
 
         processChatMenu();
@@ -111,15 +113,14 @@ public class EaseChatInputMenu extends LinearLayout {
     public void init(){
         init(null);
     }
-    
+
     /**
      * set custom emojicon menu
      * @param customEmojiconMenu
+     * BQMM集成
+     * 这里移除对表情栏的自定义功能
      */
-    public void setCustomEmojiconMenu(EaseEmojiconMenuBase customEmojiconMenu){
-        this.emojiconMenu = customEmojiconMenu;
-    }
-    
+
     /**
      * set custom primary menu
      * @param customPrimaryMenu
@@ -135,8 +136,13 @@ public class EaseChatInputMenu extends LinearLayout {
     public EaseChatExtendMenu getExtendMenu(){
         return chatExtendMenu;
     }
-    
-    public EaseEmojiconMenuBase getEmojiconMenu(){
+
+
+    /**
+     * BQMM集成
+     * 将返回类型修改为BQMMKeyboard
+     */
+    public BQMMKeyboard getEmojiconMenu(){
         return emojiconMenu;
     }
     
@@ -216,27 +222,11 @@ public class EaseChatInputMenu extends LinearLayout {
             }
         });
 
-        // emojicon menu
-        emojiconMenu.setEmojiconMenuListener(new EaseEmojiconMenuListener() {
+        /**
+         * BQMM集成
+         * 这里移除对表情栏监听器的设置
+         */
 
-            @Override
-            public void onExpressionClicked(EaseEmojicon emojicon) {
-                if(emojicon.getType() != EaseEmojicon.Type.BIG_EXPRESSION){
-                    if(emojicon.getEmojiText() != null){
-                        chatPrimaryMenu.onEmojiconInputEvent(EaseSmileUtils.getSmiledText(context,emojicon.getEmojiText()));
-                    }
-                }else{
-                    if(listener != null){
-                        listener.onBigExpressionClicked(emojicon);
-                    }
-                }
-            }
-
-            @Override
-            public void onDeleteImageClicked() {
-                chatPrimaryMenu.onEmojiconDeleteEvent();
-            }
-        });
 
     }
     
@@ -278,14 +268,9 @@ public class EaseChatInputMenu extends LinearLayout {
      */
     protected void toggleEmojicon() {
         if (chatExtendMenuContainer.getVisibility() == View.GONE) {
+            isEmojiClick = true;
             hideKeyboard();
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    chatExtendMenuContainer.setVisibility(View.VISIBLE);
-                    chatExtendMenu.setVisibility(View.GONE);
-                    emojiconMenu.setVisibility(View.VISIBLE);
-                }
-            }, 50);
+            chatExtendMenu.setVisibility(View.GONE);
         } else {
             if (emojiconMenu.getVisibility() == View.VISIBLE) {
                 chatExtendMenuContainer.setVisibility(View.GONE);

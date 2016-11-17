@@ -31,4 +31,14 @@ public class EaseConstant {
     
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_USER_ID = "userId";
+
+    /**
+     * BQMM集成
+     * 添加BQMM消息相关常量
+     */
+    public static final String BQMM_MESSAGE_KEY_CONTENT = "msg_data";
+    public static final String BQMM_MESSAGE_KEY_TYPE = "txt_msgType";
+    public static final String BQMM_MESSAGE_TYPE_STICKER = "facetype";
+    public static final String BQMM_MESSAGE_TYPE_MIXED = "emojitype";
+
 }

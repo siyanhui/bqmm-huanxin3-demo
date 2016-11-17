@@ -16,17 +16,28 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.hyphenate.easeui.R;
+import com.melink.bqmmsdk.sdk.BQMM;
+import com.melink.bqmmsdk.widget.BQMMEditView;
+import com.melink.bqmmsdk.widget.BQMMSendButton;
 
 /**
  * primary menu
  *
  */
 public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnClickListener {
-    private EditText editText;
+    /**
+     * BQMM集成
+     * 将EditText改为BQMM提供的
+     */
+    private BQMMEditView editText;
     private View buttonSetModeKeyboard;
     private RelativeLayout edittext_layout;
     private View buttonSetModeVoice;
-    private View buttonSend;
+    /**
+     * BQMM集成
+     * 将发送按钮改成BQMM提供的类
+     */
+    private BQMMSendButton buttonSend;
     private View buttonPressToSpeak;
     private ImageView faceNormal;
     private ImageView faceChecked;
@@ -49,19 +60,33 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
     private void init(final Context context, AttributeSet attrs) {
         Context context1 = context;
         LayoutInflater.from(context).inflate(R.layout.ease_widget_chat_primary_menu, this);
-        editText = (EditText) findViewById(R.id.et_sendmessage);
+        /**
+         * BQMM集成
+         * 转换类型，并传递给BQMM
+         */
+        editText = (BQMMEditView) findViewById(R.id.et_sendmessage);
+        BQMM.getInstance().setEditView(editText);
         buttonSetModeKeyboard = findViewById(R.id.btn_set_mode_keyboard);
         edittext_layout = (RelativeLayout) findViewById(R.id.edittext_layout);
         buttonSetModeVoice = findViewById(R.id.btn_set_mode_voice);
-        buttonSend = findViewById(R.id.btn_send);
+        /**
+         * BQMM集成
+         * 转换类型，并传递给BQMM
+         */
+        buttonSend = (BQMMSendButton) findViewById(R.id.btn_send);
+        BQMM.getInstance().setSendButton(buttonSend);
         buttonPressToSpeak = findViewById(R.id.btn_press_to_speak);
         faceNormal = (ImageView) findViewById(R.id.iv_face_normal);
         faceChecked = (ImageView) findViewById(R.id.iv_face_checked);
         RelativeLayout faceLayout = (RelativeLayout) findViewById(R.id.rl_face);
         buttonMore = (Button) findViewById(R.id.btn_more);
         edittext_layout.setBackgroundResource(R.drawable.ease_input_bar_bg_normal);
-        
-        buttonSend.setOnClickListener(this);
+
+
+        /**
+         * BQMM集成
+         * 发送按钮的点击事件会由BQMM本身进行处理，此处删去一行
+         */
         buttonSetModeKeyboard.setOnClickListener(this);
         buttonSetModeVoice.setOnClickListener(this);
         buttonMore.setOnClickListener(this);
@@ -93,6 +118,12 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
                     buttonMore.setVisibility(View.VISIBLE);
                     buttonSend.setVisibility(View.GONE);
                 }
+                /**
+                 * BQMM集成
+                 * 增加输入联想功能
+                 */
+                BQMM.getInstance().startShortcutPopupWindow(s.toString(), buttonSend);
+
             }
 
             @Override

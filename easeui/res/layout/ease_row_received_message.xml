@@ -37,7 +37,9 @@
             android:background="@drawable/ease_chatfrom_bg"
              >
 
-            <TextView
+            <!--BQMM集成-->
+            <!--将此处改为BQMMMessageText-->
+            <com.melink.bqmmsdk.widget.BQMMMessageText
                 android:id="@+id/tv_chatcontent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

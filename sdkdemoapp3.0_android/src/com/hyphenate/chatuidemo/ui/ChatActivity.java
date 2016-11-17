@@ -24,12 +24,20 @@ public class ChatActivity extends BaseActivity{
         activityInstance = this;
         //get user id or group id
         toChatUsername = getIntent().getExtras().getString("userId");
-        //use EaseChatFratFragment
-        chatFragment = new ChatFragment();
-        //pass parameters to chat fragment
-        chatFragment.setArguments(getIntent().getExtras());
-        getSupportFragmentManager().beginTransaction().add(R.id.container, chatFragment).commit();
-        
+        /**
+         * BQMM集成
+         * 这里原先的逻辑是直接new EaseChatFragment使用，但这样做是会引起问题的
+         * 在应用被后台清理掉之后再次启动时，原有逻辑会造成两个该Fragment的实例同时存在，导致BQMM界面异常
+         * 现在将逻辑改为先从FragmentManager中查找原先的Fragment，如果没有再新建
+         */
+        chatFragment = (EaseChatFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (chatFragment == null) {
+            chatFragment = new ChatFragment();
+            //传入参数
+            chatFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(R.id.container, chatFragment).commit();
+        }
+
     }
     
     @Override

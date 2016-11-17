@@ -15,9 +15,12 @@ package com.hyphenate.chatuidemo;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.multidex.MultiDex;
 
 import com.easemob.redpacketsdk.RedPacket;
+import com.melink.bqmmsdk.sdk.BQMM;
 import com.tencent.bugly.crashreport.CrashReport;
 // ============== fabric start
 //import com.crashlytics.android.Crashlytics;
@@ -53,6 +56,16 @@ public class DemoApplication extends Application {
 		RedPacket.getInstance().setDebugMode(true);
 		//end of red packet code
 		CrashReport.initCrashReport(getApplicationContext());
+		/**
+		 * BQMM集成
+		 * 首先从AndroidManifest.xml中取得appId和appSecret，然后对BQMM SDK进行初始化
+		 */
+		try {
+			Bundle bundle = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA).metaData;
+			BQMM.getInstance().initConfig(applicationContext, bundle.getString("bqmm_app_id"), bundle.getString("bqmm_app_secret"));
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static DemoApplication getInstance() {

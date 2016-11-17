@@ -33,10 +33,10 @@
             android:layout_marginBottom="7dp"
             android:layout_marginTop="9dp"
             hyphenate:numColumns="4" />
-
+        <!--BQMM集成 此处需要指定layout_height为一个确定的高度-->
         <FrameLayout 
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="250dp"
             android:id="@+id/emojicon_menu_container"
             ></FrameLayout>
     </FrameLayout>

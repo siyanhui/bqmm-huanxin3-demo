@@ -17,7 +17,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.multidex.MultiDex;
 
 import com.easemob.redpacketsdk.RedPacket;
 import com.melink.bqmmsdk.sdk.BQMM;
@@ -41,7 +40,6 @@ public class DemoApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		MultiDex.install(this);
 		super.onCreate();
 // ============== fabric start
 //		Fabric.with(this, new Crashlytics());
@@ -75,6 +73,5 @@ public class DemoApplication extends Application {
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
-		MultiDex.install(this);
 	}
 }

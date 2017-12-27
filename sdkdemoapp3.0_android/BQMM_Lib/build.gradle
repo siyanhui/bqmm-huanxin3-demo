@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 dependencies {
     compile 'com.android.support:support-v4:25.3.1'
-    compile files('libs/bqmm_v1.7.15.jar')
+    compile files('libs/bqmm_v2.0.0.jar')
 }
 
 android {

@@ -7,21 +7,24 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseEmojiconGroupEntity;
-import com.hyphenate.easeui.utils.EaseSmileUtils;
 import com.hyphenate.easeui.widget.EaseChatExtendMenu.EaseChatExtendMenuItemClickListener;
 import com.hyphenate.easeui.widget.EaseChatPrimaryMenuBase.EaseChatPrimaryMenuListener;
-import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase;
-import com.hyphenate.easeui.widget.emojicon.EaseEmojiconMenuBase.EaseEmojiconMenuListener;
+
+
+import com.hyphenate.easeui.widget.bqmmgif.BQMMGifManager;
 import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.ui.keyboard.BQMMKeyboard;
+import com.melink.bqmmsdk.ui.keyboard.IGifButtonClickListener;
 
 import java.util.List;
+import java.util.Timer;
 
 /**
  * input menu
@@ -77,7 +80,7 @@ public class EaseChatInputMenu extends LinearLayout {
 
     }
 
-    /**
+    /**c
      * init view 
      * 
      * This method should be called after registerExtendMenuItem(), setCustomEmojiconMenu() and setCustomPrimaryMenu().
@@ -100,16 +103,30 @@ public class EaseChatInputMenu extends LinearLayout {
          * 将表情栏改为BQMM的键盘，并传递给BQMM
          */
         emojiconMenu = (BQMMKeyboard) layoutInflater.inflate(R.layout.ease_layout_emojicon_menu, null);
-        BQMM.getInstance().setKeyboard(emojiconMenu);
-
+        BQMM.getInstance().setKeyboard(emojiconMenu, new IGifButtonClickListener() {
+            @Override
+            public void didClickGifTab() {
+                hideExtendMenuContainer();
+                BQMM.getInstance().getEditView().requestFocus();
+                showKeyBoard(getContext());
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        BQMMGifManager.getInstance(getContext()).showTrending();
+                    }
+                },300);
+            }
+        });
         emojiconMenuContainer.addView(emojiconMenu);
-
         processChatMenu();
         chatExtendMenu.init();
         
         inited = true;
     }
-    
+    public void showKeyBoard(Context context){
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(0,InputMethodManager.SHOW_FORCED);
+    }
     public void init(){
         init(null);
     }
@@ -167,7 +184,7 @@ public class EaseChatInputMenu extends LinearLayout {
     /**
      * register menu item
      * 
-     * @param name
+     * @param nameRes
      *            resource id of item name
      * @param drawableRes
      *            background of item
@@ -307,6 +324,7 @@ public class EaseChatInputMenu extends LinearLayout {
      *         true --extend menu is off 
      */
     public boolean onBackPressed() {
+        BQMMGifManager.getInstance(getContext()).updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
         if (chatExtendMenuContainer.getVisibility() == View.VISIBLE) {
             hideExtendMenuContainer();
             return false;

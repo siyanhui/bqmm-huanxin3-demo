@@ -55,15 +55,21 @@ import com.hyphenate.easeui.widget.EaseChatInputMenu.ChatInputMenuListener;
 import com.hyphenate.easeui.widget.EaseChatMessageList;
 import com.hyphenate.easeui.widget.EaseVoiceRecorderView;
 import com.hyphenate.easeui.widget.EaseVoiceRecorderView.EaseVoiceRecorderCallback;
+
+import com.hyphenate.easeui.widget.bqmmgif.BQMMGifManager;
+import com.hyphenate.easeui.widget.bqmmgif.IBqmmSendGifListener;
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
+import com.melink.bqmmsdk.bean.BQMMGif;
 import com.melink.bqmmsdk.bean.Emoji;
 import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.sdk.BQMMMessageHelper;
 import com.melink.bqmmsdk.sdk.IBqmmSendMessageListener;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.List;
@@ -201,6 +207,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
          * 初始化BQMM
          */
         BQMM.getInstance().load();
+        BQMMGifManager.getInstance(getContext()).addEditViewListeners();
         /**
          * BQMM集成
          * 设置发送表情的回调，两个回调分别在发送大表情和发送图文混排表情时调用
@@ -222,6 +229,12 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
                 }
             }
 
+        });
+        BQMMGifManager.getInstance(getContext()).setBQMMSendGifListener(new IBqmmSendGifListener() {
+            @Override
+            public void onSendBQMMGif(BQMMGif bqmmGif) {
+                sendBQMMGifMessage(bqmmGif);
+            }
         });
         /**
          * 表情键盘切换监听
@@ -350,6 +363,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideKeyboard();
+                BQMMGifManager.getInstance(getContext()).updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
                 inputMenu.hideExtendMenuContainer();
                 return false;
             }
@@ -746,7 +760,39 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
     protected void sendBQMMStickerMessage(@NonNull Emoji sticker) {
         sendBQMMMessage(BQMMMessageHelper.getFaceMessageString(sticker), BQMMMessageHelper.getFaceMessageData(sticker), EaseConstant.BQMM_MESSAGE_TYPE_STICKER);
     }
-
+    /**
+     * BQMM集成
+     * 发送BQMM网络表情消息
+     *
+     * @param bqmmGif 要发送的表情
+     */
+    protected void sendBQMMGifMessage(@NonNull BQMMGif bqmmGif) {
+        String content = "["+bqmmGif.getText()+"]";
+        EMMessage message;
+        JSONObject jsonObject = new JSONObject();
+        if (EaseAtMessageHelper.get().containsAtUsername(content)) {
+            if (chatType != EaseConstant.CHATTYPE_GROUP) {
+                EMLog.e(TAG, "only support group chat message");
+                return;
+            }
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+            message.setAttribute(EaseConstant.MESSAGE_ATTR_AT_MSG, EaseAtMessageHelper.get().atListToJsonArray(EaseAtMessageHelper.get().getAtMessageUsernames(content)));
+        } else {
+            message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        }
+        try {
+            jsonObject.put("data_id",bqmmGif.getSticker_id());
+            jsonObject.put("h",bqmmGif.getSticker_height());
+            jsonObject.put("w",bqmmGif.getSticker_width());
+            jsonObject.put("sticker_url",bqmmGif.getSticker_url());
+            jsonObject.put("is_gif",bqmmGif.getIs_gif());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_TYPE, EaseConstant.BQMM_MESSAGE_TYPE_WEB_STICKER);
+        message.setAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT, jsonObject);
+        sendMessage(message);
+    }
     /**
      * BQMM集成
      * 发送BQMM混合消息
@@ -756,6 +802,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
     protected void sendBQMMMixedMessage(@NonNull List<Object> messageContent) {
         sendBQMMMessage(BQMMMessageHelper.getMixedMessageString(messageContent), BQMMMessageHelper.getMixedMessageData(messageContent), EaseConstant.BQMM_MESSAGE_TYPE_MIXED);
     }
+
 
     /**
      * BQMM集成

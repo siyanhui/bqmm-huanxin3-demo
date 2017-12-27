@@ -40,5 +40,5 @@ public class EaseConstant {
     public static final String BQMM_MESSAGE_KEY_TYPE = "txt_msgType";
     public static final String BQMM_MESSAGE_TYPE_STICKER = "facetype";
     public static final String BQMM_MESSAGE_TYPE_MIXED = "emojitype";
-
+    public static final String BQMM_MESSAGE_TYPE_WEB_STICKER = "webtype";
 }

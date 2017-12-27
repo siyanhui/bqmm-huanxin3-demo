@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.hyphenate.easeui.R;
+import com.hyphenate.easeui.widget.bqmmgif.BQMMGifManager;
 import com.melink.bqmmsdk.sdk.BQMM;
 import com.melink.bqmmsdk.widget.BQMMEditView;
 import com.melink.bqmmsdk.widget.BQMMSendButton;
@@ -122,8 +123,7 @@ public class EaseChatPrimaryMenu extends EaseChatPrimaryMenuBase implements OnCl
                  * BQMM集成
                  * 增加输入联想功能
                  */
-                BQMM.getInstance().startShortcutPopupWindow(s.toString(), buttonSend);
-
+//                BQMM.getInstance().startShortcutPopupWindow(s.toString(), buttonSend);
             }
 
             @Override

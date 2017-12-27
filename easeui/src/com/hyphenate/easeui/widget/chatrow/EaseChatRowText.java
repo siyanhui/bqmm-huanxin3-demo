@@ -17,8 +17,10 @@ import com.melink.baseframe.utils.DensityUtils;
 import com.melink.bqmmsdk.widget.BQMMMessageText;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import static com.melink.bqmmsdk.widget.BQMMMessageText.FACETYPE;
+import static com.melink.bqmmsdk.widget.BQMMMessageText.WEBTYPE;
 
 public class EaseChatRowText extends EaseChatRow{
 
@@ -79,13 +81,19 @@ public class EaseChatRowText extends EaseChatRow{
          * BQMMMessageText会作为一个普通TextView将消息直接展示出来
          */
         String msgType;
-        JSONArray msgData;
+        JSONArray msgData = null;
+        JSONObject webMsgData = null;
         try {
             msgType = message.getStringAttribute(EaseConstant.BQMM_MESSAGE_KEY_TYPE);
-            msgData = message.getJSONArrayAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT);
+            if (msgType.equals(EaseConstant.BQMM_MESSAGE_TYPE_WEB_STICKER)){
+                webMsgData = message.getJSONObjectAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT);
+            }else {
+                msgData = message.getJSONArrayAttribute(EaseConstant.BQMM_MESSAGE_KEY_CONTENT);
+            }
         } catch (HyphenateException e) {
             msgType = "";
             msgData = null;
+            webMsgData = null;
         }
         if (message.direct() == EMMessage.Direct.RECEIVE)
             bubble.setBackgroundResource(R.drawable.ease_chatfrom_bg);
@@ -94,11 +102,16 @@ public class EaseChatRowText extends EaseChatRow{
         /**
          * 为大表情时去掉背景框
          */
-        if (TextUtils.equals(msgType, FACETYPE)) {
+        if (TextUtils.equals(msgType, FACETYPE) || TextUtils.equals(msgType, WEBTYPE)) {
             bubble.setBackgroundResource(0);
         }
         // 设置内容
-        contentView.showMessage(((EMTextMessageBody) message.getBody()).getMessage(), msgType, msgData);
+        if (TextUtils.equals(msgType, WEBTYPE)){
+            contentView.showBQMMGif(webMsgData.optString("data_id"),webMsgData.optString("sticker_url"),webMsgData.optInt("w"),webMsgData.optInt("h"),webMsgData.optInt("is_gif"));
+        }else {
+            contentView.showMessage(((EMTextMessageBody) message.getBody()).getMessage(), msgType, msgData);
+        }
+
 
         handleTextMessage();
     }

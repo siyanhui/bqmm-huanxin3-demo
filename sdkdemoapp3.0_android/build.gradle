@@ -5,6 +5,7 @@ buildscript {
         // ============== fabric start
 //        maven { url 'https://maven.fabric.io/public' }
         // ============== fabric end
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
@@ -17,6 +18,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
 
@@ -49,7 +51,7 @@ def bqmmAppSecret = properties.getProperty('bqmm.appSecret')
 
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "25.0.2"
 
     defaultConfig {
@@ -110,6 +112,6 @@ dependencies {
 //        transitive = true;
 //    }
 // ============== fabric end
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.tencent.bugly:crashreport:latest.release'
 }

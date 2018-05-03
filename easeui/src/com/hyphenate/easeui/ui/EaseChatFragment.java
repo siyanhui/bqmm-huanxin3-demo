@@ -207,7 +207,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
          * 初始化BQMM
          */
         BQMM.getInstance().load();
-        BQMMGifManager.getInstance(getContext()).addEditViewListeners();
+        BQMMGifManager.getInstance().addEditViewListeners();
         /**
          * BQMM集成
          * 设置发送表情的回调，两个回调分别在发送大表情和发送图文混排表情时调用
@@ -230,7 +230,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
             }
 
         });
-        BQMMGifManager.getInstance(getContext()).setBQMMSendGifListener(new IBqmmSendGifListener() {
+        BQMMGifManager.getInstance().setBQMMSendGifListener(new IBqmmSendGifListener() {
             @Override
             public void onSendBQMMGif(BQMMGif bqmmGif) {
                 sendBQMMGifMessage(bqmmGif);
@@ -363,7 +363,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideKeyboard();
-                BQMMGifManager.getInstance(getContext()).updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
+                BQMMGifManager.getInstance().updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
                 inputMenu.hideExtendMenuContainer();
                 return false;
             }

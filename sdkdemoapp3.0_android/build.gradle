@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.1.1'
         // ============== fabric start
 //        classpath 'io.fabric.tools:gradle:1.+'
         // ============== fabric end
@@ -57,7 +57,7 @@ android {
     defaultConfig {
         applicationId "com.hyphenate.chatuidemo"
         minSdkVersion 11
-        targetSdkVersion 22
+        targetSdkVersion 25
         multiDexEnabled true
         /**
          * BQMM集成
@@ -79,7 +79,7 @@ android {
         }
 
         // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
+        androidTest.setRoot('tests')
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
@@ -95,6 +95,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            lintOptions{
+                abortOnError false
+            }
         }
     }
 }

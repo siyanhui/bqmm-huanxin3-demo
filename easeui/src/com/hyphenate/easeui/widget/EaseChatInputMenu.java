@@ -112,7 +112,7 @@ public class EaseChatInputMenu extends LinearLayout {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        BQMMGifManager.getInstance(getContext()).showTrending();
+                        BQMMGifManager.getInstance().showTrending();
                     }
                 },300);
             }
@@ -324,7 +324,7 @@ public class EaseChatInputMenu extends LinearLayout {
      *         true --extend menu is off 
      */
     public boolean onBackPressed() {
-        BQMMGifManager.getInstance(getContext()).updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
+        BQMMGifManager.getInstance().updateSearchModeAndSearchUIWithStatus(BQMMGifManager.BQMM_SEARCH_MODE_STATUS_KEYBOARD_HIDE);
         if (chatExtendMenuContainer.getVisibility() == View.VISIBLE) {
             hideExtendMenuContainer();
             return false;

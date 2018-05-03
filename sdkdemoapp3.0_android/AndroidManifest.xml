@@ -510,37 +510,36 @@
         <!--BQMM集成 以下是在集成BQMM时需要添加的一些activity-->
         <activity
             android:name="com.melink.bqmmsdk.ui.store.EmojiPackageList"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
         <activity
             android:name="com.melink.bqmmsdk.ui.store.EmojiDetail"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
         <activity
             android:name="com.melink.bqmmsdk.ui.store.EmojiPackageDetail"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
         <activity
             android:name="com.melink.bqmmsdk.ui.store.EmojiPackageSetting"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
         <activity
             android:name="com.melink.bqmmsdk.ui.store.EmojiPackageSort"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
         <activity
             android:name="com.melink.bqmmsdk.ui.store.ServiceDeclaration"
-            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/horizontal_slide" >
+        </activity>
+        <activity
+            android:name="com.melink.bqmmsdk.ui.store.AuthorDetail"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide" >
         </activity>
